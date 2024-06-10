@@ -4,5 +4,11 @@
     "sounds": [
       "cucubanymod:vent_open"
     ]
+  },
+  "salut": {
+    "subtitle": "sound.cucubanymod.npcs.emily.salut",
+    "sounds": [
+      "cucubanymod:npcs/emily/salut"
+    ]
   }
 }

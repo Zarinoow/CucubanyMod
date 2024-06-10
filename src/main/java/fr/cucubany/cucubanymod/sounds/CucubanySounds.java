@@ -24,5 +24,6 @@ public class CucubanySounds {
      * Register sounds
      */
     public static final RegistryObject<SoundEvent> VENT_OPEN = registerSoundEvent("vent_open");
+    public static final RegistryObject<SoundEvent> NPC_EMILY_SALUT = registerSoundEvent("salut");
 
 }
