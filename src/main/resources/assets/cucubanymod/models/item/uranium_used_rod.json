@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "zombie_extreme:items/item_thorium_fuel_rod"
+  }
+}

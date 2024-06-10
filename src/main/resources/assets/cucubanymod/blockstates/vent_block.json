@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "" : {
+      "model": "cucubanymod:block/vent_block"
+    }
+  }
+}

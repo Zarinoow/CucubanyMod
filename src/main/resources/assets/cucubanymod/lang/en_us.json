@@ -1,0 +1,43 @@
+{
+  "itemGroup.cucubanytab": "Cucubany",
+
+
+  "item.cucubanymod.id_card": "Identity Card",
+  "item.cucubanymod.screwdriver": "Screwdriver",
+  "item.cucubanymod.hazmat_suit_helmet": "Hazmat Gas Mask",
+  "item.cucubanymod.hazmat_suit_chestplate": "Hazmat Suit",
+  "item.cucubanymod.hazmat_suit_leggings": "Hazmat Suit Pants",
+  "item.cucubanymod.hazmat_suit_boots": "Hazmat Suit Chemical Boots",
+  "item.cucubanymod.uranium_rod": "Uranium Rod",
+  "item.cucubanymod.uranium_used_rod": "Used Uranium Rod",
+
+
+  "block.cucubanymod.vent_block": "Vent Block",
+  "block.cucubanymod.vent_door": "Vent Door",
+
+
+  "sound.cucubanymod.vent_open": "Vent Open",
+
+
+  "message.cucubanymod.identity_card.no_player_found": "You are no aiming any player !",
+  "message.cucubanymod.identity_card.linked": "This identity card is now linked to {0} !",
+  "message.cucubanymod.identity.reset": "Your identity has been reset by an admin ! Please, relog to apply the changes !",
+  "message.cucubanymod.identity.reset.sucess": "The identity of {0} players has been reset !",
+  "message.cucubanymod.identity.get": "The identity of {0} is {1} {2} !",
+  "message.cucubanymod.identity.get.empty": "The identity of {0} does not exist !",
+
+
+  "tooltip.cucubanymod.identity_card.first_name": "First name : {0}",
+  "tooltip.cucubanymod.identity_card.last_name": "Last name : {0}",
+  "tooltip.cucubanymod.identity_card.identity_number": "Identity number : {0}",
+
+
+  "biome.cucubanymod.irradiated": "Irradiated",
+
+
+  "screen.cucubanymod.skill_screen.title": "Skill Screen",
+
+
+  "key.categories.cucubanymod": "Cucubany",
+  "key.cucubanymod.skill_screen": "Open the skill screen"
+}

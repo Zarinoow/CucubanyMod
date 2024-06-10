@@ -1,0 +1,123 @@
+{
+  "variants": {
+    "attachment=ceiling,facing=east,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270,
+      "x": 180
+    },
+    "attachment=ceiling,facing=east,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=ceiling,facing=north,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180,
+      "x": 180
+    },
+    "attachment=ceiling,facing=north,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 0,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=ceiling,facing=south,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "x": 180
+    },
+    "attachment=ceiling,facing=south,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=ceiling,facing=west,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90,
+      "x": 180
+    },
+    "attachment=ceiling,facing=west,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=floor,facing=east,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90
+    },
+    "attachment=floor,facing=east,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=floor,facing=north,state=closed": {
+      "model": "cucubanymod:block/vent_door"
+    },
+    "attachment=floor,facing=north,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=floor,facing=south,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180
+    },
+    "attachment=floor,facing=south,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=floor,facing=west,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270
+    },
+    "attachment=floor,facing=west,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=wall,facing=east,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=wall,facing=east,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 90
+    },
+    "attachment=wall,facing=north,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=wall,facing=north,state=open": {
+      "model": "cucubanymod:block/vent_door"
+    },
+    "attachment=wall,facing=south,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=wall,facing=south,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 180
+    },
+    "attachment=wall,facing=west,state=closed": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270,
+      "x": 90,
+      "uvlock": true
+    },
+    "attachment=wall,facing=west,state=open": {
+      "model": "cucubanymod:block/vent_door",
+      "y": 270
+    }
+  }
+}

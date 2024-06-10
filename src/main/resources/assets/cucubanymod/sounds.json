@@ -1,0 +1,8 @@
+{
+  "vent_open": {
+    "subtitle": "sound.cucubanymod.vent_open",
+    "sounds": [
+      "cucubanymod:vent_open"
+    ]
+  }
+}
