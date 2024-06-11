@@ -6,11 +6,12 @@ public interface ISkill {
 
     String getKeyName();
 
-    default TranslatableComponent getDisplayName() {
-        return new TranslatableComponent("skill.cucubanymod." + getKeyName() + ".name");
-    }
+    TranslatableComponent getDisplayName();
+    TranslatableComponent getDisplayDescription();
 
     int getLevel();
+
+    String getDisplayIcon();
 
     void setLevel(int level);
 

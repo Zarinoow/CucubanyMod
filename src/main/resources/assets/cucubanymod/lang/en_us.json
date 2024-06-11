@@ -40,5 +40,20 @@
 
 
   "key.categories.cucubanymod": "Cucubany",
-  "key.cucubanymod.skill_screen": "Open the skill screen"
+  "key.cucubanymod.skill_screen": "Open the skill screen",
+
+  "skill.cucubanymod.outdoor_survival.name": "Outdoor Survival",
+  "skill.cucubanymod.outdoor_survival.description": "This skill allows you to survive in the\nwild and unlock more escape time",
+  "skill.cucubanymod.engineering.name": "Engineering",
+  "skill.cucubanymod.engineering.description": "This skill allows you to craft more\nadvanced items.",
+  "skill.cucubanymod.medicine.name": "Medicine",
+  "skill.cucubanymod.medicine.description": "This skill allows you to heal\nyourself and others.",
+  "skill.cucubanymod.cooking.name": "Cooking",
+  "skill.cucubanymod.cooking.description": "This skill allows you to cook more\nadvanced meals.",
+  "skill.cucubanymod.building.name": "Building",
+  "skill.cucubanymod.building.description": "This skill allows you to build more\nadvanced blocks and furniture.",
+  "skill.cucubanymod.defense.name": "Defense",
+  "skill.cucubanymod.defense.description": "This skill allows you to defend\nyourself more effectively.",
+  "skill.cucubanymod.general.current_level": "Current level : {0}/{1}"
+
 }
