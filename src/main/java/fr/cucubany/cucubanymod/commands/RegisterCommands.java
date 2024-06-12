@@ -9,6 +9,7 @@ public class RegisterCommands {
     public static void onServerStarting(ServerStartingEvent event) {
         ResetIdentityCommand.register(event.getServer().getCommands().getDispatcher());
         GetIdentityCommand.register(event.getServer().getCommands().getDispatcher());
+        SkillCommand.register(event.getServer().getCommands().getDispatcher());
     }
 
 }
