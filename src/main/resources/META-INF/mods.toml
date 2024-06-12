@@ -29,9 +29,9 @@ displayName="Cucubany Mod" #mandatory
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="cucubanymod.png" #optional
 # A text field displayed in the mod UI
-credits="Merci à tous ceux qui ont contribué à ce mod" #option
+credits="Merci à tous ceux qui ont contribué à ce mod. Merci à Foxelia pour l'utilisation de son API de manière locale." #option
 # A text field displayed in the mod UI
-authors="Zarinoow, Gregi32, ZinarcAngel" #optional
+authors="Zarinoow, Gregi32, ZinarcAngel, Foxelia" #optional
 # Display Test controls the display for your mod in the server connection screen
 # MATCH_VERSION means that your mod will cause a red X if the versions on client and server differ. This is the default behaviour and should be what you choose if you have server and client elements to your mod.
 # IGNORE_SERVER_VERSION means that your mod will not cause a red X if it's present on the server but not on the client. This is what you should use if you're a server only mod.
