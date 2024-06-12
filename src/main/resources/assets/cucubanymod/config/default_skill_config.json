@@ -1,0 +1,25 @@
+{
+  "no_aspiration": [
+    {
+      "level": 1,
+      "reward_recipes": [
+        "minecraft:crafting_table",
+        "minecraft:furnace"
+      ]
+    },
+    {
+      "level": 101,
+      "reward_recipes": [
+          "minecraft:*"
+      ]
+    }
+  ],
+  "aspiration_1": [
+    {
+      "level": 1,
+      "reward_recipes": [
+        "mod:example_item"
+      ]
+    }
+  ]
+}
