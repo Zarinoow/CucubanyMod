@@ -16,7 +16,7 @@ public class IdentityChoicePacketHandler {
             if (player != null) {
                 LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
                 identityCap.ifPresent(cap -> {
-                    Identity identity = new Identity(packet.getFirstName(), packet.getLastName());
+                    Identity identity = new Identity(packet.firstName(), packet.lastName());
                     cap.setIdentity(identity);
                     player.refreshDisplayName();
                 });
