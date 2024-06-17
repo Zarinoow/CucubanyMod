@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -38,11 +39,7 @@ public class ResetIdentityCommand {
     }
 
     private static void resetIdentity(ServerPlayer player) {
-        LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
-
-        identityCap.ifPresent(cap -> {
-            cap.setIdentity(null);
-        });
+        IdentityProvider.setIdentity(player, null);
 
         // Disconnect the player to apply the changes
         player.connection.disconnect(new TranslatableComponent("message.cucubanymod.identity.reset"));

@@ -4,6 +4,7 @@ import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
@@ -21,17 +22,12 @@ public class PlayerNameFormatHandler {
     }
 
     private static Component getDisplayName(Player player) {
-        LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
+        Identity identity = IdentityProvider.getIdentity(player);
 
-        return identityCap.map(cap -> {
-            Identity identity = cap.getIdentity();
+        if (identity != null && !identity.getFirstName().isEmpty() && !identity.getLastName().isEmpty()) {
+            return new TextComponent(identity.getFullName());
+        }
 
-            if (identity != null && !identity.getFirstName().isEmpty() && !identity.getLastName().isEmpty()) {
-                return new TextComponent(identity.getFullName());
-            }
-
-
-            return new TextComponent(player.getName().getString());
-        }).orElse(new TextComponent(player.getName().getString()));
+        return new TextComponent(player.getName().getString());
     }
 }

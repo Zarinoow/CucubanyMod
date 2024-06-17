@@ -7,6 +7,7 @@ import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
 import fr.cucubany.cucubanymod.network.OpenIdentityScreenPacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -23,18 +24,16 @@ public class PlayerJoinSubscriber {
 
         if(event.getEntity() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
-            LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
 
-            identityCap.ifPresent(cap -> {
-                Identity identity = cap.getIdentity();
-                if (identity == null || identity.getFirstName().isEmpty() || identity.getLastName().isEmpty()){
-                    player.setInvulnerable(true);
-                    CucubanyPacketHandler.INSTANCE.sendTo(new OpenIdentityScreenPacket(), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                } else {
-                    IdentityUpdatePacket packet = new IdentityUpdatePacket(player.getUUID(), identity);
-                    CucubanyPacketHandler.INSTANCE.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                }
-            });
+            Identity identity = IdentityProvider.getIdentity(player);
+
+            if (identity == null || identity.getFirstName().isEmpty() || identity.getLastName().isEmpty()){
+                player.setInvulnerable(true);
+                CucubanyPacketHandler.INSTANCE.sendTo(new OpenIdentityScreenPacket(), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            } else {
+                IdentityUpdatePacket packet = new IdentityUpdatePacket(player.getUUID(), identity);
+                CucubanyPacketHandler.INSTANCE.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            }
         }
 
     }

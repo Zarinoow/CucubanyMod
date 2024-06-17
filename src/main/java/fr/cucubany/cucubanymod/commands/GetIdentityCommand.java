@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -35,15 +36,12 @@ public class GetIdentityCommand {
         ServerPlayer sender = context.getSource().getPlayerOrException();
 
         players.forEach(player -> {
-            LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
-            identityCap.ifPresent(cap -> {
-                Identity identity = cap.getIdentity();
-                if (identity != null && !identity.getFirstName().isEmpty() && !identity.getLastName().isEmpty()) {
-                    sender.sendMessage(new TranslatableComponent("message.cucubanymod.identity.get", player.getName().getString(), identity.getFirstName(), identity.getLastName()), sender.getUUID());
-                } else {
-                    sender.sendMessage(new TranslatableComponent("message.cucubanymod.identity.get.empty", player.getName().getString()), sender.getUUID());
-                }
-            });
+            Identity identity = IdentityProvider.getIdentity(player);
+            if (identity != null && !identity.getFirstName().isEmpty() && !identity.getLastName().isEmpty()) {
+                sender.sendMessage(new TranslatableComponent("message.cucubanymod.identity.get", player.getName().getString(), identity.getFirstName(), identity.getLastName()), sender.getUUID());
+            } else {
+                sender.sendMessage(new TranslatableComponent("message.cucubanymod.identity.get.empty", player.getName().getString()), sender.getUUID());
+            }
         });
         return 1;
     }

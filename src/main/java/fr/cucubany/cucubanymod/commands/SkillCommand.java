@@ -39,6 +39,7 @@ public class SkillCommand {
 
     private static int getSkillLevel(CommandContext<CommandSourceStack> context) {
 
+
         return 0;
     }
 

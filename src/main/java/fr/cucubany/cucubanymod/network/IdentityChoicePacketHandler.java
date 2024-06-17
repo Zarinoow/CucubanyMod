@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.network;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.NetworkEvent;
@@ -14,12 +15,8 @@ public class IdentityChoicePacketHandler {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-                LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
-                identityCap.ifPresent(cap -> {
-                    Identity identity = new Identity(packet.firstName(), packet.lastName());
-                    cap.setIdentity(identity);
-                    player.refreshDisplayName();
-                });
+                IdentityProvider.setIdentity(player, new Identity(packet.firstName(), packet.lastName()));
+                player.refreshDisplayName();
             }
             player.setInvulnerable(false);
         });

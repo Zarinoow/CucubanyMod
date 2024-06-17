@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.items.advanced;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -58,28 +59,24 @@ public class IdentityCardItem extends Item {
 
     private void updateIdentityCard(Player p, Player targetedPlayer, ItemStack card) {
         // Obtenez la capacité Identity du joueur
-        LazyOptional<IIdentityCapability> identityCap = targetedPlayer.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
+        Identity identity = IdentityProvider.getIdentity(targetedPlayer);
 
-        identityCap.ifPresent(cap -> {
-            Identity identity = cap.getIdentity();
+        if (identity == null || identity.getFirstName().isEmpty() || identity.getLastName().isEmpty()) return;
 
-            if (identity == null || identity.getFirstName().isEmpty() || identity.getLastName().isEmpty()) return;
+        // Crée un nouveau tag pour stocker les informations de l'identité
+        CompoundTag identityTag = new CompoundTag();
+        identityTag.putString("FirstName", identity.getFirstName());
+        identityTag.putString("LastName", identity.getLastName());
 
-            // Crée un nouveau tag pour stocker les informations de l'identité
-            CompoundTag identityTag = new CompoundTag();
-            identityTag.putString("FirstName", identity.getFirstName());
-            identityTag.putString("LastName", identity.getLastName());
-
-            int identityNumber = IdentityCardNumberManager.getNextIdentityNumber();
-            identityTag.putInt("IdentityNumber", identityNumber);
+        int identityNumber = IdentityCardNumberManager.getNextIdentityNumber();
+        identityTag.putInt("IdentityNumber", identityNumber);
 
 
-            // Ajoute le tag à la carte
-            card.getOrCreateTag().put("Identity", identityTag);
-            card.getOrCreateTag().putBoolean("IdentityLinked", true);
+        // Ajoute le tag à la carte
+        card.getOrCreateTag().put("Identity", identityTag);
+        card.getOrCreateTag().putBoolean("IdentityLinked", true);
 
-            p.sendMessage(new TranslatableComponent("message.cucubanymod.identity_card.linked", identity.getFullName()).withStyle(ChatFormatting.GREEN), p.getUUID());
-        });
+        p.sendMessage(new TranslatableComponent("message.cucubanymod.identity_card.linked", identity.getFullName()).withStyle(ChatFormatting.GREEN), p.getUUID());
 
     }
 

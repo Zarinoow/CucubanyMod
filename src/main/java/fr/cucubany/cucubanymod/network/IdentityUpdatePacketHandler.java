@@ -2,6 +2,7 @@ package fr.cucubany.cucubanymod.network;
 
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,10 +26,7 @@ public class IdentityUpdatePacketHandler {
     private static void updateIdentity(IdentityUpdatePacket packet) {
         Player player = Minecraft.getInstance().level.getPlayerByUUID(packet.uuid());
 
-        LazyOptional<IIdentityCapability> identityCap = player.getCapability(IdentityCapabilityProvider.IDENTITY_CAPABILITY);
-        identityCap.ifPresent(cap -> {
-            cap.setIdentity(packet.identity());
-        });
+        IdentityProvider.setIdentity(player, packet.identity());
     }
 
 }
