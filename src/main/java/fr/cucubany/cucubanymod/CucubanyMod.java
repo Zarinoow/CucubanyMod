@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlocks;
 import fr.cucubany.cucubanymod.client.keybind.KeyBinding;
 import fr.cucubany.cucubanymod.commands.RegisterCommands;
+import fr.cucubany.cucubanymod.commands.SkillArgument;
 import fr.cucubany.cucubanymod.config.CucubanyClientConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyServerConfigs;
@@ -15,6 +16,8 @@ import fr.cucubany.cucubanymod.sounds.CucubanySounds;
 import fr.cucubany.cucubanymod.world.biome.CucubanyBiomes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -64,6 +67,7 @@ public class CucubanyMod
         MinecraftForge.EVENT_BUS.register(CapabilitiesSubscriber.class);
 
         // Register commands
+        ArgumentTypes.register(MOD_ID + ":skill", SkillArgument.class, new EmptyArgumentSerializer<>(SkillArgument::skill));
         MinecraftForge.EVENT_BUS.register(RegisterCommands.class);
     }
 

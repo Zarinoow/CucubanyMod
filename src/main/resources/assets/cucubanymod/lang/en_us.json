@@ -26,6 +26,8 @@
   "message.cucubanymod.identity.reset.sucess": "The identity of {0} players has been reset !",
   "message.cucubanymod.identity.get": "The identity of {0} is {1} {2} !",
   "message.cucubanymod.identity.get.empty": "The identity of {0} does not exist !",
+  "message.cucubanymod.skill.get.no_identity": "The targeted player does not have an identity !",
+  "message.cucubanymod.skill.get.no_player": "The targeted player need to be in the same dimension and rendered to get his skills !",
 
 
   "tooltip.cucubanymod.identity_card.first_name": "First name : {0}",

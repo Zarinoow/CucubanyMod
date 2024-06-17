@@ -25,6 +25,9 @@ public class IdentityUpdatePacketHandler {
     @OnlyIn(Dist.CLIENT)
     private static void updateIdentity(IdentityUpdatePacket packet) {
         Player player = Minecraft.getInstance().level.getPlayerByUUID(packet.uuid());
+        if (player == null) {
+            return;
+        }
 
         IdentityProvider.setIdentity(player, packet.identity());
     }
