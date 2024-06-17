@@ -9,8 +9,8 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class IdentityUpdatePacketHandler {
-    public static void handle(IdentityUpdatePacket packet, Supplier<NetworkEvent.Context> ctx) {
+public class IdentityChoicePacketHandler {
+    public static void handle(IdentityChoicePacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {

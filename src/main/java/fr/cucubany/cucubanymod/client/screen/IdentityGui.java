@@ -2,8 +2,7 @@ package fr.cucubany.cucubanymod.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
-import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
-import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.network.IdentityChoicePacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -67,7 +66,7 @@ public class IdentityGui extends Screen {
     @Override
     public void onClose() {
        if(this.validateButton.active) {
-           IdentityUpdatePacket packet = new IdentityUpdatePacket(formatName(firstNameField.getValue()), formatName(lastNameField.getValue()));
+           IdentityChoicePacket packet = new IdentityChoicePacket(formatName(firstNameField.getValue()), formatName(lastNameField.getValue()));
            CucubanyPacketHandler.INSTANCE.sendToServer(packet);
            super.onClose();
        }

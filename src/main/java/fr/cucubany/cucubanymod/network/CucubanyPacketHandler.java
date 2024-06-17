@@ -16,7 +16,7 @@ public class CucubanyPacketHandler {
 
     public static void register() {
         int id = 0;
-        INSTANCE.registerMessage(id++, IdentityUpdatePacket.class, IdentityUpdatePacket::encode, IdentityUpdatePacket::decode, IdentityUpdatePacketHandler::handle);
+        INSTANCE.registerMessage(id++, IdentityChoicePacket.class, IdentityChoicePacket::encode, IdentityChoicePacket::decode, IdentityChoicePacketHandler::handle);
         INSTANCE.registerMessage(id++, OpenIdentityScreenPacket.class, (packet, buffer) -> {}, buffer -> new OpenIdentityScreenPacket(), OpenIdentityScreenPacketHandler::handle);
     }
 }
