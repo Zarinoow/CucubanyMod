@@ -4,6 +4,7 @@ import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
+import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
 import fr.cucubany.cucubanymod.network.OpenIdentityScreenPacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,6 +30,9 @@ public class PlayerJoinSubscriber {
                 if (identity == null || identity.getFirstName().isEmpty() || identity.getLastName().isEmpty()){
                     player.setInvulnerable(true);
                     CucubanyPacketHandler.INSTANCE.sendTo(new OpenIdentityScreenPacket(), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                } else {
+                    IdentityUpdatePacket packet = new IdentityUpdatePacket(player.getUUID(), identity);
+                    CucubanyPacketHandler.INSTANCE.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 }
             });
         }
