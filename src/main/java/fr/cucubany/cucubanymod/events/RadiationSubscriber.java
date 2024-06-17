@@ -21,6 +21,7 @@ public class RadiationSubscriber {
     @SubscribeEvent
     public static void onRadiationEvent(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
+        if(player.getLevel().isClientSide()) return;
 
         if(HazmatSuit.isWearingFullHazmatSuit(player)) return;
 
