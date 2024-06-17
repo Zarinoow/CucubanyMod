@@ -1,11 +1,12 @@
 package fr.cucubany.cucubanymod.roleplay.education;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class PlayerSkill {
 
-    private final Set<Skill> skills = new HashSet<>();
+    private final Set<Skill> skills = new LinkedHashSet<>();
 
     public PlayerSkill() {
         skills.add(new Skill.OutdoorSurvival());
