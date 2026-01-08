@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.items;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.armor.HazmatSuit;
 import fr.cucubany.cucubanymod.items.advanced.IdentityCardItem;
+import fr.cucubany.cucubanymod.items.advanced.JointItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -20,9 +21,20 @@ public class CucubanyItems {
     /*
      * Register items
      */
+    /*
+     * Advanced items
+     */
     public static final RegistryObject<Item> IDENTITY_CARD = ITEMS.register("id_card", () -> new IdentityCardItem(new Item.Properties()
             .tab(CucubanyCreativeModeTab.CUCUBANY_TAB)
             .stacksTo(1)));
+
+    public static final RegistryObject<Item> JOINT = ITEMS.register("joint", () -> new JointItem(new Item.Properties()
+            .tab(CucubanyCreativeModeTab.CUCUBANY_TAB)
+            .stacksTo(1)
+            .defaultDurability(20)));
+    /*
+     * Basic items
+     */
     public static final RegistryObject<Item> SCREWDRIVER = ITEMS.register("screwdriver", () -> new Item(new Item.Properties()
             .tab(CucubanyCreativeModeTab.CUCUBANY_TAB)
             .stacksTo(1)
