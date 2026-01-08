@@ -8,10 +8,13 @@ import fr.cucubany.cucubanymod.commands.SkillArgument;
 import fr.cucubany.cucubanymod.config.CucubanyClientConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyServerConfigs;
+import fr.cucubany.cucubanymod.effects.CucubanyEffects;
+import fr.cucubany.cucubanymod.entities.CucubanyEntities;
 import fr.cucubany.cucubanymod.events.CapabilitiesSubscriber;
 import fr.cucubany.cucubanymod.events.DeathEventSubscriber;
 import fr.cucubany.cucubanymod.items.CucubanyItems;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
+import fr.cucubany.cucubanymod.roleplay.exposure.ExposureEvents;
 import fr.cucubany.cucubanymod.sounds.CucubanySounds;
 import fr.cucubany.cucubanymod.world.biome.CucubanyBiomes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -51,6 +54,8 @@ public class CucubanyMod
         CucubanyItems.register(modEventBus);
         CucubanyBlocks.register(modEventBus);
         CucubanySounds.register(modEventBus);
+        CucubanyEffects.register(modEventBus);
+        CucubanyEntities.register(modEventBus);
 
         modEventBus.addListener(this::clientSetup);
 
@@ -65,6 +70,9 @@ public class CucubanyMod
 
         // Register capabilities
         MinecraftForge.EVENT_BUS.register(CapabilitiesSubscriber.class);
+
+        // Register exposure events
+        MinecraftForge.EVENT_BUS.register(ExposureEvents.class);
 
         // Register commands
         ArgumentTypes.register(MOD_ID + ":skill", SkillArgument.class, new EmptyArgumentSerializer<>(SkillArgument::skill));
