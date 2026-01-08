@@ -5,10 +5,25 @@
       "cucubanymod:vent_open"
     ]
   },
+  "joint_music": {
+    "subtitle": "sound.cucubanymod.joint_music",
+    "sounds": [
+      "cucubanymod:joint_use"
+    ]
+  },
   "salut": {
     "subtitle": "sound.cucubanymod.npcs.emily.salut",
     "sounds": [
       "cucubanymod:npcs/emily/salut"
+    ]
+  },
+  "stress_loop": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "cucubanymod:stress_loop",
+        "stream": true
+      }
     ]
   }
 }
