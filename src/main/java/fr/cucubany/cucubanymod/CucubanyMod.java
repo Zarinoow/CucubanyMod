@@ -2,6 +2,7 @@ package fr.cucubany.cucubanymod;
 
 import com.mojang.logging.LogUtils;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlocks;
+import fr.cucubany.cucubanymod.client.events.ExposureClientEvents;
 import fr.cucubany.cucubanymod.client.keybind.KeyBinding;
 import fr.cucubany.cucubanymod.commands.RegisterCommands;
 import fr.cucubany.cucubanymod.commands.SkillArgument;
@@ -9,12 +10,12 @@ import fr.cucubany.cucubanymod.config.CucubanyClientConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyServerConfigs;
 import fr.cucubany.cucubanymod.effects.CucubanyEffects;
-import fr.cucubany.cucubanymod.entities.CucubanyEntities;
 import fr.cucubany.cucubanymod.events.CapabilitiesSubscriber;
 import fr.cucubany.cucubanymod.events.DeathEventSubscriber;
 import fr.cucubany.cucubanymod.items.CucubanyItems;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.roleplay.exposure.ExposureEvents;
+import fr.cucubany.cucubanymod.server.ServerSkinManager;
 import fr.cucubany.cucubanymod.sounds.CucubanySounds;
 import fr.cucubany.cucubanymod.world.biome.CucubanyBiomes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -22,6 +23,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -55,15 +57,14 @@ public class CucubanyMod
         CucubanyBlocks.register(modEventBus);
         CucubanySounds.register(modEventBus);
         CucubanyEffects.register(modEventBus);
-        CucubanyEntities.register(modEventBus);
 
         modEventBus.addListener(this::clientSetup);
 
         // Register the packet handler
         CucubanyPacketHandler.register();
 
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+        // Register server starting event
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
 
         // DeathEventSubscriber is a webhook that sends a message to a Discord channel when a player dies
         MinecraftForge.EVENT_BUS.register(new DeathEventSubscriber());
@@ -83,6 +84,12 @@ public class CucubanyMod
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_BLOCK.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_DOOR.get(), RenderType.cutout());
         KeyBinding.register();
+        MinecraftForge.EVENT_BUS.register(ExposureClientEvents.class);
+    }
+
+    private void onServerStarting(ServerStartingEvent event) {
+        CucubanyMod.getLogger().info("Server is starting, loading skins parts...");
+        ServerSkinManager.loadSkins();
     }
 
     public static Logger getLogger() {
