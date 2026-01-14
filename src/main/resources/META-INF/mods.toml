@@ -60,7 +60,6 @@ Nous sommes les meilleurs, faites nous confiance.
 [[dependencies.cucubanymod]]
     modId="minecraft"
     mandatory=true
-# This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="[1.18.2,1.19)"
     ordering="NONE"
     side="BOTH"
@@ -68,5 +67,23 @@ Nous sommes les meilleurs, faites nous confiance.
     modId="zombie_extreme"
     mandatory=true
     versionRange="[0.2.4,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.cucubanymod]]
+    modId="playeranimator"
+    mandatory=true
+    versionRange="[1.0.2,)"
+    ordering="NONE"
+    side="CLIENT"
+[[dependencies.cucubanymod]]
+    modId="bendylib"
+    mandatory=true
+    versionRange="[2.1.1,)"
+    ordering="NONE"
+    side="CLIENT"
+[[dependencies.cucubanymod]]
+    modId="wildfire_gender"
+    mandatory=true
+    versionRange="[2.9.0,)"
     ordering="NONE"
     side="BOTH"

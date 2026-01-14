@@ -2,7 +2,9 @@ package fr.cucubany.cucubanymod;
 
 import com.mojang.logging.LogUtils;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlocks;
+import fr.cucubany.cucubanymod.client.events.ClientModEvents;
 import fr.cucubany.cucubanymod.client.events.ExposureClientEvents;
+import fr.cucubany.cucubanymod.client.events.WildfireGuiLockEvent;
 import fr.cucubany.cucubanymod.client.keybind.KeyBinding;
 import fr.cucubany.cucubanymod.commands.RegisterCommands;
 import fr.cucubany.cucubanymod.commands.SkillArgument;
@@ -85,6 +87,8 @@ public class CucubanyMod
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_DOOR.get(), RenderType.cutout());
         KeyBinding.register();
         MinecraftForge.EVENT_BUS.register(ExposureClientEvents.class);
+        MinecraftForge.EVENT_BUS.register(ClientModEvents.class);
+        MinecraftForge.EVENT_BUS.register(WildfireGuiLockEvent.class);
     }
 
     private void onServerStarting(ServerStartingEvent event) {

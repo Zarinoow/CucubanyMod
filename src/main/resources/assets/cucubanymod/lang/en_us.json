@@ -3,6 +3,7 @@
 
 
   "item.cucubanymod.id_card": "Identity Card",
+  "item.cucubanymod.joint": "Joint",
   "item.cucubanymod.screwdriver": "Screwdriver",
   "item.cucubanymod.hazmat_suit_helmet": "Hazmat Gas Mask",
   "item.cucubanymod.hazmat_suit_chestplate": "Hazmat Suit",
@@ -17,6 +18,7 @@
 
 
   "sound.cucubanymod.vent_open": "Vent Open",
+  "sound.cucubanymod.joint_music": "Drug music in head",
   "sound.cucubanymod.npcs.emily.salut": "Emily say salut",
 
 
@@ -39,6 +41,20 @@
 
 
   "screen.cucubanymod.skill_screen.title": "Skill Screen",
+  "screen.cucubanymod.character_editor.title": "Character Editor",
+  "screen.cucubanymod.character_editor.shape": "Shape : {0}",
+  "screen.cucubanymod.character_editor.shape.slim": "Slim",
+  "screen.cucubanymod.character_editor.shape.normal": "Normal",
+  "screen.cucubanymod.character_editor.category.body": "Body",
+  "screen.cucubanymod.character_editor.category.hair": "Hair",
+  "screen.cucubanymod.character_editor.category.eyes": "Eyes",
+  "screen.cucubanymod.character_editor.category.eyebrows": "Eyebrows",
+  "screen.cucubanymod.character_editor.category.mouth": "Mouth",
+  "screen.cucubanymod.character_editor.category.shirt": "Shirt",
+  "screen.cucubanymod.character_editor.category.pants": "Pants",
+  "screen.cucubanymod.character_editor.category.shoes": "Shoes",
+  "screen.cucubanymod.character_editor.option.none": "No option available",
+  "screen.cucubanymod.character_editor.button.rotation": "Rotation : {0}°",
 
 
   "key.categories.cucubanymod": "Cucubany",

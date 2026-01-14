@@ -3,10 +3,15 @@ package fr.cucubany.cucubanymod.client.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.IdentityChoicePacket;
+import fr.cucubany.cucubanymod.network.RequestSkinContentPacket;
+import fr.cucubany.cucubanymod.roleplay.skin.custom.SkinPart;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
+
+import java.util.EnumSet;
 
 public class IdentityGui extends Screen {
     private EditBox firstNameField;
@@ -68,7 +73,15 @@ public class IdentityGui extends Screen {
        if(this.validateButton.active) {
            IdentityChoicePacket packet = new IdentityChoicePacket(formatName(firstNameField.getValue()), formatName(lastNameField.getValue()));
            CucubanyPacketHandler.INSTANCE.sendToServer(packet);
+
+           // 2. Demander les skins au serveur (Toutes les catégories pour la création complète)
+           // On utilise EnumSet.allOf pour tout demander d'un coup
+           RequestSkinContentPacket requestSkin = new RequestSkinContentPacket(EnumSet.allOf(SkinPart.class));
+           CucubanyPacketHandler.INSTANCE.sendToServer(requestSkin);
+
+           // 3. Ouvrir l'écran (Il sera peut-être vide 1/2 seconde le temps que le paquet arrive, c'est normal)
            super.onClose();
+           Minecraft.getInstance().setScreen(new CharacterCustomizationScreen(Minecraft.getInstance().player, true));
        }
     }
 

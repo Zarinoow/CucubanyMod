@@ -15,6 +15,7 @@ public interface IIdentityCapability {
         if (identity != null) {
             tag.putString("firstName", identity.getFirstName());
             tag.putString("lastName", identity.getLastName());
+            tag.putBoolean("isSlim", identity.isSlim());
             for(Skill skill : identity.getEducation().getSkills()) {
                 tag.putInt(skill.getKeyName(), skill.getLevel());
             }
@@ -30,6 +31,7 @@ public interface IIdentityCapability {
         for(Skill skill : id.getEducation().getSkills()) {
             skill.setLevel(tag.getInt(skill.getKeyName()));
         }
+        id.setSlim(tag.getBoolean("isSlim"));
         setIdentity(id);
     }
 }

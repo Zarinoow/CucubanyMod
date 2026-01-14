@@ -2,13 +2,15 @@
   "required": true,
   "minVersion": "0.8",
   "package": "fr.cucubany.cucubanymod.mixins",
-  "refmap": "mixins.cucubanymod.refmap.json",
+  "refmap": "cucubanymod.refmap.json",
   "target": "@env(DEFAULT)",
   "mixins": [
-    "MouseHandlerMixin",
-    "MinecraftMixin"
+
   ],
-  "client": [],
+  "client": [
+    "AbstractClientPlayerMixin",
+    "PlayerInfoMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

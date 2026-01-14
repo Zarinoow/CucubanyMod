@@ -20,5 +20,9 @@ public class CucubanyPacketHandler {
         INSTANCE.registerMessage(id++, OpenIdentityScreenPacket.class, (packet, buffer) -> {}, buffer -> new OpenIdentityScreenPacket(), OpenIdentityScreenPacketHandler::handle);
         INSTANCE.registerMessage(id++, IdentityUpdatePacket.class, IdentityUpdatePacket::encode, IdentityUpdatePacket::decode, IdentityUpdatePacketHandler::handle);
         INSTANCE.registerMessage(id++, OpenSkillScreenPacket.class, OpenSkillScreenPacket::encode, OpenSkillScreenPacket::decode, OpenSkillScreenPacketHandler::handle);
+        INSTANCE.registerMessage(id++, RequestSkinContentPacket.class, RequestSkinContentPacket::encode, RequestSkinContentPacket::decode, RequestSkinContentPacket::handle);
+        INSTANCE.registerMessage(id++, SendCharacterCreationPacket.class, SendCharacterCreationPacket::encode, SendCharacterCreationPacket::decode, SendCharacterCreationPacket::handle);
+        INSTANCE.registerMessage(id++, SyncSkinPacket.class, SyncSkinPacket::encode, SyncSkinPacket::decode, SyncSkinPacket::handle);
+        INSTANCE.registerMessage(id++, CustomizationOptionsPacket.class, CustomizationOptionsPacket::encode, CustomizationOptionsPacket::decode, CustomizationOptionsPacketHandler::handle);
     }
 }

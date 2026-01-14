@@ -5,6 +5,7 @@ import fr.cucubany.cucubanymod.roleplay.education.PlayerSkill;
 public class Identity {
     private final String firstName;
     private final String lastName;
+    private boolean isSlim;
 
     private final PlayerSkill education = new PlayerSkill();
 
@@ -28,4 +29,7 @@ public class Identity {
     public PlayerSkill getEducation() {
         return this.education;
     }
+
+    public boolean isSlim() { return isSlim; }
+    public void setSlim(boolean slim) { isSlim = slim; }
 }

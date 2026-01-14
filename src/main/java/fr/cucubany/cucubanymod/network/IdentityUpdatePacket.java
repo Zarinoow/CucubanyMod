@@ -13,7 +13,13 @@ public record IdentityUpdatePacket(UUID uuid, Identity identity) {
         buffer.writeUUID(packet.uuid);
         buffer.writeUtf(packet.identity.getFirstName());
         buffer.writeUtf(packet.identity.getLastName());
-        for(var skill : packet.identity.getEducation().getSkills()) {
+
+        buffer.writeBoolean(packet.identity.isSlim());
+
+        var skills = packet.identity.getEducation().getSkills();
+        buffer.writeInt(skills.size());
+
+        for(var skill : skills) {
             buffer.writeUtf(skill.getKeyName());
             buffer.writeInt(skill.getLevel());
             if(skill instanceof IAspiration) {
@@ -26,12 +32,27 @@ public record IdentityUpdatePacket(UUID uuid, Identity identity) {
         UUID uuid = buffer.readUUID();
         String firstName = buffer.readUtf(32767);
         String lastName = buffer.readUtf(32767);
+
+        boolean isSlim = buffer.readBoolean();
+
         Identity identity = new Identity(firstName, lastName);
-        while (buffer.readableBytes() > 0) {
+        identity.setSlim(isSlim);
+
+        // --- SÉCURITÉ : On lit le nombre exact de skills ---
+        int skillCount = buffer.readInt();
+
+        for (int i = 0; i < skillCount; i++) {
             String skillName = buffer.readUtf(32767);
-            Skill skill = identity.getEducation().getSkills().stream().filter(s -> s.getKeyName().equals(skillName)).findFirst().orElse(null);
+            int level = buffer.readInt();
+
+            // On cherche le skill dans l'identité par défaut pour le mettre à jour
+            Skill skill = identity.getEducation().getSkills().stream()
+                    .filter(s -> s.getKeyName().equals(skillName))
+                    .findFirst()
+                    .orElse(null);
+
             if(skill != null) {
-                skill.setLevel(buffer.readInt());
+                skill.setLevel(level);
                 if (skill instanceof IAspiration) {
                     // TODO: Decode aspiration
                 }
@@ -39,5 +60,4 @@ public record IdentityUpdatePacket(UUID uuid, Identity identity) {
         }
         return new IdentityUpdatePacket(uuid, identity);
     }
-
 }
