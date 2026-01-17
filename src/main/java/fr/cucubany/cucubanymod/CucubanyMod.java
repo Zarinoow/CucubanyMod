@@ -13,6 +13,7 @@ import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.config.CucubanyServerConfigs;
 import fr.cucubany.cucubanymod.effects.CucubanyEffects;
 import fr.cucubany.cucubanymod.events.CapabilitiesSubscriber;
+import fr.cucubany.cucubanymod.events.DamageDistributionHandler;
 import fr.cucubany.cucubanymod.events.DeathEventSubscriber;
 import fr.cucubany.cucubanymod.items.CucubanyItems;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
@@ -76,6 +77,9 @@ public class CucubanyMod
 
         // Register exposure events
         MinecraftForge.EVENT_BUS.register(ExposureEvents.class);
+
+        // Register damage distribution handler
+        MinecraftForge.EVENT_BUS.register(DamageDistributionHandler.class);
 
         // Register commands
         ArgumentTypes.register(MOD_ID + ":skill", SkillArgument.class, new EmptyArgumentSerializer<>(SkillArgument::skill));

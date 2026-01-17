@@ -1,0 +1,42 @@
+package fr.cucubany.cucubanymod.hitbox.poses;
+
+import fr.cucubany.cucubanymod.hitbox.BodyPart;
+import fr.cucubany.cucubanymod.hitbox.PartTransform;
+import net.minecraft.world.entity.player.Player;
+
+public class SneakPoseHandler implements IPartPoseHandler {
+
+    @Override
+    public PartTransform[] getTransforms(Player player, BodyPart part) {
+        double x = player.getX();
+        double y = player.getY();
+        double z = player.getZ();
+
+        float rad = player.yBodyRot * ((float)Math.PI / 180F);
+        double lx = Math.cos(rad);
+        double lz = Math.sin(rad);
+        double bx = Math.sin(rad); // Vecteur Arrière
+        double bz = -Math.cos(rad);
+
+        double headY = 0.95;
+        double torsoY = 0.45;
+        double armY = 0.35;
+        double legY = 0.0;
+        double sneakBack = 0.2;
+
+        return switch (part) {
+            case HEAD -> new PartTransform[]{ PartTransform.of(x - (bx * 0.1), y + headY, z - (bz * 0.1), 0.5F, 0.5F) };
+
+            case TORSO -> {
+                PartTransform merged = PartTransform.of(x + (bx * 0.15), y + torsoY, z + (bz * 0.15), 0.5F, 0.5F);
+                yield new PartTransform[]{ merged, merged };
+            }
+
+            case ARM_LEFT -> new PartTransform[]{ PartTransform.of(x + (lx * 0.375) + (bx * 0.1), y + armY, z + (lz * 0.375) + (bz * 0.1), 0.25F, 0.60F) };
+            case ARM_RIGHT -> new PartTransform[]{ PartTransform.of(x - (lx * 0.375) + (bx * 0.1), y + armY, z - (lz * 0.375) + (bz * 0.1), 0.25F, 0.60F) };
+
+            case LEG_LEFT -> new PartTransform[]{ PartTransform.of(x + (lx * 0.125) + (bx * sneakBack), y + legY, z + (lz * 0.125) + (bz * sneakBack), 0.25F, 0.75F) };
+            case LEG_RIGHT -> new PartTransform[]{ PartTransform.of(x - (lx * 0.125) + (bx * sneakBack), y + legY, z - (lz * 0.125) + (bz * sneakBack), 0.25F, 0.75F) };
+        };
+    }
+}

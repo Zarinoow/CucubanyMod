@@ -1,5 +1,6 @@
 package fr.cucubany.cucubanymod.network;
 
+import fr.cucubany.cucubanymod.CucubanyMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -8,7 +9,7 @@ public class CucubanyPacketHandler {
     private static final String PROTOCOL_VERSION = "1";
 
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation("cucubanymod", "main"),
+            new ResourceLocation(CucubanyMod.MOD_ID, "main"),
             () -> PROTOCOL_VERSION,
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals
@@ -24,5 +25,6 @@ public class CucubanyPacketHandler {
         INSTANCE.registerMessage(id++, SendCharacterCreationPacket.class, SendCharacterCreationPacket::encode, SendCharacterCreationPacket::decode, SendCharacterCreationPacket::handle);
         INSTANCE.registerMessage(id++, SyncSkinPacket.class, SyncSkinPacket::encode, SyncSkinPacket::decode, SyncSkinPacket::handle);
         INSTANCE.registerMessage(id++, CustomizationOptionsPacket.class, CustomizationOptionsPacket::encode, CustomizationOptionsPacket::decode, CustomizationOptionsPacketHandler::handle);
+        INSTANCE.registerMessage(id++, SyncBodyHealthPacket.class, SyncBodyHealthPacket::encode, SyncBodyHealthPacket::decode, SyncBodyHealthPacket::handle);
     }
 }
