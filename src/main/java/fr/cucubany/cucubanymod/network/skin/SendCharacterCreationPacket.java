@@ -1,4 +1,4 @@
-package fr.cucubany.cucubanymod.network;
+package fr.cucubany.cucubanymod.network.skin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,6 +6,8 @@ import com.wildfire.main.GenderPlayer;
 import com.wildfire.main.WildfireGender;
 import com.wildfire.main.networking.PacketSendGenderInfo;
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
+import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import fr.cucubany.cucubanymod.roleplay.skin.CharacterAppearance;

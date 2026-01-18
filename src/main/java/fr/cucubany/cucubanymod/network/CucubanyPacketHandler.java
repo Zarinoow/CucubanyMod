@@ -1,6 +1,8 @@
 package fr.cucubany.cucubanymod.network;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
+import fr.cucubany.cucubanymod.network.skin.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;

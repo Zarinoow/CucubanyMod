@@ -1,7 +1,7 @@
 package fr.cucubany.cucubanymod.events;
 
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
-import fr.cucubany.cucubanymod.network.SyncSkinPacket;
+import fr.cucubany.cucubanymod.network.skin.SyncSkinPacket;
 import fr.cucubany.cucubanymod.server.ServerSkinUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;

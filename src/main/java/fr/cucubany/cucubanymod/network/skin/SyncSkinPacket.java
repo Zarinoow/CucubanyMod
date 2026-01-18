@@ -1,4 +1,4 @@
-package fr.cucubany.cucubanymod.network;
+package fr.cucubany.cucubanymod.network.skin;
 
 import fr.cucubany.cucubanymod.client.skin.ClientSkinManager;
 import net.minecraft.network.FriendlyByteBuf;

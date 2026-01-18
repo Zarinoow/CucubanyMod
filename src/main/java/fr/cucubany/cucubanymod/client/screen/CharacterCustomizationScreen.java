@@ -13,7 +13,7 @@ import fr.cucubany.cucubanymod.client.skin.ClientSkinHelper;
 import fr.cucubany.cucubanymod.client.skin.WildfireBridge;
 import fr.cucubany.cucubanymod.client.widgets.GradientColorPicker;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
-import fr.cucubany.cucubanymod.network.SendCharacterCreationPacket;
+import fr.cucubany.cucubanymod.network.skin.SendCharacterCreationPacket;
 import fr.cucubany.cucubanymod.roleplay.dummy.DummyPlayer;
 import fr.cucubany.cucubanymod.roleplay.skin.CharacterAppearance;
 import fr.cucubany.cucubanymod.roleplay.skin.SkinManager;

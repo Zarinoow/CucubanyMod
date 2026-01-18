@@ -3,7 +3,7 @@ package fr.cucubany.cucubanymod.client.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.IdentityChoicePacket;
-import fr.cucubany.cucubanymod.network.RequestSkinContentPacket;
+import fr.cucubany.cucubanymod.network.skin.RequestSkinContentPacket;
 import fr.cucubany.cucubanymod.roleplay.skin.custom.SkinPart;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
