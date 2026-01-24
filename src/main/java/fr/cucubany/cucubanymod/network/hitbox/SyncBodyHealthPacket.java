@@ -1,7 +1,8 @@
-package fr.cucubany.cucubanymod.network;
+package fr.cucubany.cucubanymod.network.hitbox;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.capabilities.BodyHealthProvider;
+import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

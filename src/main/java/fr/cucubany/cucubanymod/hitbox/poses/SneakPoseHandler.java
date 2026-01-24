@@ -37,6 +37,8 @@ public class SneakPoseHandler implements IPartPoseHandler {
 
             case LEG_LEFT -> new PartTransform[]{ PartTransform.of(x + (lx * 0.125) + (bx * sneakBack), y + legY, z + (lz * 0.125) + (bz * sneakBack), 0.25F, 0.75F) };
             case LEG_RIGHT -> new PartTransform[]{ PartTransform.of(x - (lx * 0.125) + (bx * sneakBack), y + legY, z - (lz * 0.125) + (bz * sneakBack), 0.25F, 0.75F) };
+            case FOOT_LEFT -> new PartTransform[]{ PartTransform.of(x + (lx * 0.125) + (bx * sneakBack), y + 0.0, z + (lz * 0.125) + (bz * sneakBack), 0.25F, 0.15F) };
+            case FOOT_RIGHT -> new PartTransform[]{ PartTransform.of(x - (lx * 0.125) + (bx * sneakBack), y + 0.0, z - (lz * 0.125) + (bz * sneakBack), 0.25F, 0.15F) };
         };
     }
 }

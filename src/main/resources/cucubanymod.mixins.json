@@ -7,7 +7,8 @@
   "target": "@env(DEFAULT)",
   "mixins": [
     "PlayerMixin",
-    "ProjectileUtilMixin"
+    "ProjectileUtilMixin",
+    "ServerboundInteractPacketMixin"
   ],
   "client": [
     "AbstractClientPlayerMixin",

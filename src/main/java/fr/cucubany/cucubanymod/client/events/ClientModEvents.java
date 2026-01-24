@@ -5,8 +5,10 @@ import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.client.animation.ClientAnimationManager;
+import fr.cucubany.cucubanymod.client.overlay.BodyHealthOverlay;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -32,5 +34,6 @@ public class ClientModEvents {
                     return layer;
                 }
         );
+        OverlayRegistry.registerOverlayTop("Body Health", BodyHealthOverlay.HUD_OVERLAY);
     }
 }

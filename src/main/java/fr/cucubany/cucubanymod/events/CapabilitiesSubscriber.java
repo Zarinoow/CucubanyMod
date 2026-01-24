@@ -5,7 +5,11 @@ import fr.cucubany.cucubanymod.capabilities.BodyHealthProvider;
 import fr.cucubany.cucubanymod.capabilities.IBodyHealth;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
+import fr.cucubany.cucubanymod.hitbox.BodyPartEntity;
+import fr.cucubany.cucubanymod.hitbox.IMultiPartPlayer;
+import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
+import fr.cucubany.cucubanymod.network.hitbox.SyncPartIdsPacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,8 +20,29 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 public class CapabilitiesSubscriber {
+
+    /**
+     * Se déclenche quand un joueur (tracker) commence à voir un autre joueur (target).
+     * On doit envoyer au tracker les IDs des parties du corps de la target.
+     */
+    @SubscribeEvent
+    public static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (event.getTarget() instanceof Player target && event.getPlayer() instanceof ServerPlayer tracker) {
+            if (target instanceof IMultiPartPlayer multiPartTarget) {
+                BodyPartEntity[] parts = multiPartTarget.getBodyParts();
+                if (parts != null && parts.length > 0) {
+                    // On envoie le paquet UNIQUEMENT au joueur qui regarde (tracker)
+                    CucubanyPacketHandler.INSTANCE.send(
+                            PacketDistributor.PLAYER.with(() -> tracker),
+                            new SyncPartIdsPacket(target.getId(), parts)
+                    );
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onAttachCapabilitiesEvent(AttachCapabilitiesEvent<Entity> event) {
@@ -37,7 +62,13 @@ public class CapabilitiesSubscriber {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+        if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
+            if(serverPlayer instanceof IMultiPartPlayer multi) {
+                CucubanyPacketHandler.INSTANCE.send(
+                        PacketDistributor.PLAYER.with(() -> serverPlayer),
+                        new SyncPartIdsPacket(serverPlayer.getId(), multi.getBodyParts())
+                );
+            }
             serverPlayer.getCapability(BodyHealthProvider.BODY_HEALTH_CAPABILITY).ifPresent(cap -> {
                 SyncBodyHealthPacket.sendHealthSync(serverPlayer, cap.serializeNBT());
             });

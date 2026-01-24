@@ -3,7 +3,7 @@ package fr.cucubany.cucubanymod.events;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.capabilities.BodyHealthProvider;
 import fr.cucubany.cucubanymod.hitbox.BodyPart;
-import fr.cucubany.cucubanymod.network.SyncBodyHealthPacket;
+import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;

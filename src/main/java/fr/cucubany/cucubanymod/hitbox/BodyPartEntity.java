@@ -1,10 +1,13 @@
 package fr.cucubany.cucubanymod.hitbox;
 
 import fr.cucubany.cucubanymod.capabilities.BodyHealthProvider;
-import fr.cucubany.cucubanymod.network.SyncBodyHealthPacket;
+import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
+import fr.cucubany.cucubanymod.server.PartRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -22,6 +25,19 @@ public class BodyPartEntity extends PartEntity<Player> {
         this.dimensions = EntityDimensions.scalable(width, height);
         this.refreshDimensions();
         this.noPhysics = true;
+
+        if (!parent.level.isClientSide) {
+            PartRegistry.add(this);
+        }
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+        // DÉSINSCRIPTION
+        if (!this.level.isClientSide) {
+            PartRegistry.remove(this);
+        }
     }
 
     // --- Permet le redimensionnement dynamique ---
@@ -57,7 +73,7 @@ public class BodyPartEntity extends PartEntity<Player> {
     }
 
     @Override
-    public net.minecraft.world.InteractionResult interact(Player player, net.minecraft.world.InteractionHand hand) {
+    public InteractionResult interact(Player player, InteractionHand hand) {
         // On redirige le clic droit vers le joueur parent
         return this.getParent().interact(player, hand);
     }
@@ -69,4 +85,8 @@ public class BodyPartEntity extends PartEntity<Player> {
     @Override public boolean is(Entity entity) { return this == entity || this.getParent() == entity; }
     @Override public Packet<?> getAddEntityPacket() { return null; }
     @Override public boolean isNoGravity() { return true; }
+    @Override
+    public boolean isAttackable() {
+        return true;
+    }
 }
