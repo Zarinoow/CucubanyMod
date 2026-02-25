@@ -549,6 +549,7 @@ public class CharacterCustomizationScreen extends Screen {
         CharacterAppearance appearance = new CharacterAppearance(
                 this.isSlimModel,
                 currentGender,
+                this.bustSize,
                 selectedIds,
                 new HashMap<>(this.categoryColors)
         );

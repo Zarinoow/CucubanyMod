@@ -10,20 +10,23 @@ import java.util.Map;
 public class CharacterAppearance {
     private boolean isSlim;
     private GenderPlayer.Gender gender;
+    private float bustSize;
     // Map <Partie, ID du fichier>
     private final Map<SkinPart, String> selectedParts;
     // Map <Partie, Couleur Int>
     private final Map<SkinPart, Integer> partColors;
 
-    public CharacterAppearance(boolean isSlim, GenderPlayer.Gender gender, Map<SkinPart, String> selectedParts, Map<SkinPart, Integer> partColors) {
+    public CharacterAppearance(boolean isSlim, GenderPlayer.Gender gender, float bustSize, Map<SkinPart, String> selectedParts, Map<SkinPart, Integer> partColors) {
         this.isSlim = isSlim;
         this.gender = gender;
+        this.bustSize = bustSize;
         this.selectedParts = selectedParts;
         this.partColors = partColors;
     }
 
     public boolean isSlim() { return isSlim; }
     public GenderPlayer.Gender getGender() { return gender; }
+    public float getBustSize() { return bustSize; }
     public Map<SkinPart, String> getSelectedParts() { return selectedParts; }
     public Map<SkinPart, Integer> getPartColors() { return partColors; }
 
@@ -32,6 +35,7 @@ public class CharacterAppearance {
     public static void encode(CharacterAppearance msg, FriendlyByteBuf buf) {
         buf.writeBoolean(msg.isSlim);
         buf.writeEnum(msg.gender);
+        buf.writeFloat(msg.bustSize);
 
         // Taille des parts
         buf.writeInt(msg.selectedParts.size());
@@ -51,6 +55,7 @@ public class CharacterAppearance {
     public static CharacterAppearance decode(FriendlyByteBuf buf) {
         boolean slim = buf.readBoolean();
         GenderPlayer.Gender gender = buf.readEnum(GenderPlayer.Gender.class);
+        float bustSize = buf.readFloat();
 
         int partsSize = buf.readInt();
         Map<SkinPart, String> parts = new HashMap<>();
@@ -64,6 +69,6 @@ public class CharacterAppearance {
             colors.put(buf.readEnum(SkinPart.class), buf.readInt());
         }
 
-        return new CharacterAppearance(slim, gender, parts, colors);
+        return new CharacterAppearance(slim, gender, bustSize, parts, colors);
     }
 }

@@ -4,6 +4,8 @@ import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncPartIdsPacket;
 import fr.cucubany.cucubanymod.network.skin.*;
+import fr.cucubany.cucubanymod.network.wildfire.SyncWildfireToClientPacket;
+import fr.cucubany.cucubanymod.network.wildfire.SyncWildfireToServerPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -34,5 +36,8 @@ public class CucubanyPacketHandler {
         // Body health packets
         INSTANCE.registerMessage(id++, SyncBodyHealthPacket.class, SyncBodyHealthPacket::encode, SyncBodyHealthPacket::decode, SyncBodyHealthPacket::handle);
         INSTANCE.registerMessage(id++, SyncPartIdsPacket.class, SyncPartIdsPacket::encode, SyncPartIdsPacket::decode, SyncPartIdsPacket::handle);
+        // Wildfire sync packets
+        INSTANCE.registerMessage(id++, SyncWildfireToServerPacket.class, SyncWildfireToServerPacket::encode, SyncWildfireToServerPacket::decode, SyncWildfireToServerPacket::handle);
+        INSTANCE.registerMessage(id++, SyncWildfireToClientPacket.class, SyncWildfireToClientPacket::encode, SyncWildfireToClientPacket::decode, SyncWildfireToClientPacket::handle);
     }
 }

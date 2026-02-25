@@ -1,6 +1,7 @@
 package fr.cucubany.cucubanymod.capabilities;
 
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.GenderOption;
 import fr.cucubany.cucubanymod.roleplay.education.Skill;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -16,9 +17,10 @@ public interface IIdentityCapability {
             tag.putString("firstName", identity.getFirstName());
             tag.putString("lastName", identity.getLastName());
             tag.putBoolean("isSlim", identity.isSlim());
-            for(Skill skill : identity.getEducation().getSkills()) {
+            for (Skill skill : identity.getEducation().getSkills()) {
                 tag.putInt(skill.getKeyName(), skill.getLevel());
             }
+            tag.put("genderOption", identity.getGenderOption().writeNBT());
         }
         return tag;
     }
@@ -28,10 +30,13 @@ public interface IIdentityCapability {
         String firstName = tag.getString("firstName");
         String lastName = tag.getString("lastName");
         Identity id = new Identity(firstName, lastName);
-        for(Skill skill : id.getEducation().getSkills()) {
+        for (Skill skill : id.getEducation().getSkills()) {
             skill.setLevel(tag.getInt(skill.getKeyName()));
         }
         id.setSlim(tag.getBoolean("isSlim"));
+        if (tag.contains("genderOption")) {
+            id.getGenderOption().readNBT(tag.getCompound("genderOption"));
+        }
         setIdentity(id);
     }
 }

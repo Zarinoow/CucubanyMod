@@ -8,6 +8,7 @@ public class Identity {
     private boolean isSlim;
 
     private final PlayerSkill education = new PlayerSkill();
+    private final GenderOption genderOption = new GenderOption();
 
     public Identity(String firstName, String lastName) {
         this.firstName = firstName;
@@ -32,4 +33,6 @@ public class Identity {
 
     public boolean isSlim() { return isSlim; }
     public void setSlim(boolean slim) { isSlim = slim; }
+
+    public GenderOption getGenderOption() { return genderOption; }
 }

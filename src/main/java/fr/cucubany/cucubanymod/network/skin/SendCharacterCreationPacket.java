@@ -8,6 +8,7 @@ import com.wildfire.main.networking.PacketSendGenderInfo;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
+import fr.cucubany.cucubanymod.roleplay.GenderOption;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import fr.cucubany.cucubanymod.roleplay.skin.CharacterAppearance;
@@ -82,9 +83,17 @@ public class SendCharacterCreationPacket {
                 GenderPlayer wPlayer = WildfireGender.getOrAddPlayerById(player.getUUID());
 
                 wPlayer.updateGender(msg.appearance.getGender());
+                wPlayer.updateBustSize(msg.appearance.getBustSize());
 
                 GenderPlayer.saveGenderInfo(wPlayer);
                 PacketSendGenderInfo.send(wPlayer);
+
+                // Sauvegarde dans la capability du joueur
+                if (identity != null) {
+                    GenderOption go = identity.getGenderOption();
+                    go.setGender(msg.appearance.getGender());
+                    go.setBustSize(msg.appearance.getBustSize());
+                }
 
             } catch (Exception e) {
                 CucubanyMod.getLogger().error("Error while applying Wildfire gender", e);
