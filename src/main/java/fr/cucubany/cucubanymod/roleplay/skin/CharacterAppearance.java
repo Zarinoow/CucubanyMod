@@ -11,15 +11,26 @@ public class CharacterAppearance {
     private boolean isSlim;
     private GenderPlayer.Gender gender;
     private float bustSize;
+    private float bustXOffset;
+    private float bustYOffset;
+    private float bustZOffset;
+    private float bustCleavage;
     // Map <Partie, ID du fichier>
     private final Map<SkinPart, String> selectedParts;
     // Map <Partie, Couleur Int>
     private final Map<SkinPart, Integer> partColors;
 
-    public CharacterAppearance(boolean isSlim, GenderPlayer.Gender gender, float bustSize, Map<SkinPart, String> selectedParts, Map<SkinPart, Integer> partColors) {
+    public CharacterAppearance(boolean isSlim, GenderPlayer.Gender gender,
+                               float bustSize, float bustXOffset, float bustYOffset,
+                               float bustZOffset, float bustCleavage,
+                               Map<SkinPart, String> selectedParts, Map<SkinPart, Integer> partColors) {
         this.isSlim = isSlim;
         this.gender = gender;
         this.bustSize = bustSize;
+        this.bustXOffset = bustXOffset;
+        this.bustYOffset = bustYOffset;
+        this.bustZOffset = bustZOffset;
+        this.bustCleavage = bustCleavage;
         this.selectedParts = selectedParts;
         this.partColors = partColors;
     }
@@ -27,6 +38,10 @@ public class CharacterAppearance {
     public boolean isSlim() { return isSlim; }
     public GenderPlayer.Gender getGender() { return gender; }
     public float getBustSize() { return bustSize; }
+    public float getBustXOffset() { return bustXOffset; }
+    public float getBustYOffset() { return bustYOffset; }
+    public float getBustZOffset() { return bustZOffset; }
+    public float getBustCleavage() { return bustCleavage; }
     public Map<SkinPart, String> getSelectedParts() { return selectedParts; }
     public Map<SkinPart, Integer> getPartColors() { return partColors; }
 
@@ -36,15 +51,17 @@ public class CharacterAppearance {
         buf.writeBoolean(msg.isSlim);
         buf.writeEnum(msg.gender);
         buf.writeFloat(msg.bustSize);
+        buf.writeFloat(msg.bustXOffset);
+        buf.writeFloat(msg.bustYOffset);
+        buf.writeFloat(msg.bustZOffset);
+        buf.writeFloat(msg.bustCleavage);
 
-        // Taille des parts
         buf.writeInt(msg.selectedParts.size());
         msg.selectedParts.forEach((part, id) -> {
             buf.writeEnum(part);
             buf.writeUtf(id);
         });
 
-        // Taille des couleurs
         buf.writeInt(msg.partColors.size());
         msg.partColors.forEach((part, color) -> {
             buf.writeEnum(part);
@@ -56,6 +73,10 @@ public class CharacterAppearance {
         boolean slim = buf.readBoolean();
         GenderPlayer.Gender gender = buf.readEnum(GenderPlayer.Gender.class);
         float bustSize = buf.readFloat();
+        float bustXOffset = buf.readFloat();
+        float bustYOffset = buf.readFloat();
+        float bustZOffset = buf.readFloat();
+        float bustCleavage = buf.readFloat();
 
         int partsSize = buf.readInt();
         Map<SkinPart, String> parts = new HashMap<>();
@@ -69,6 +90,6 @@ public class CharacterAppearance {
             colors.put(buf.readEnum(SkinPart.class), buf.readInt());
         }
 
-        return new CharacterAppearance(slim, gender, bustSize, parts, colors);
+        return new CharacterAppearance(slim, gender, bustSize, bustXOffset, bustYOffset, bustZOffset, bustCleavage, parts, colors);
     }
 }

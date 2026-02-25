@@ -43,6 +43,17 @@ public class GenderOption {
 
     public void setGender(GenderPlayer.Gender gender) { this.gender = gender; }
     public void setBustSize(float bustSize) { this.bustSize = bustSize; }
+    public void setXOffset(float xOffset) { this.xOffset = xOffset; }
+    public void setYOffset(float yOffset) { this.yOffset = yOffset; }
+    public void setZOffset(float zOffset) { this.zOffset = zOffset; }
+    public void setCleavage(float cleavage) { this.cleavage = cleavage; }
+    public void setBounceMultiplier(float bounceMultiplier) { this.bounceMultiplier = bounceMultiplier; }
+    public void setFloppyMultiplier(float floppyMultiplier) { this.floppyMultiplier = floppyMultiplier; }
+    public void setBreastPhysics(boolean breastPhysics) { this.breastPhysics = breastPhysics; }
+    public void setBreastPhysicsArmor(boolean breastPhysicsArmor) { this.breastPhysicsArmor = breastPhysicsArmor; }
+    public void setShowInArmor(boolean showInArmor) { this.showInArmor = showInArmor; }
+    public void setHurtSounds(boolean hurtSounds) { this.hurtSounds = hurtSounds; }
+    public void setUniboob(boolean uniboob) { this.uniboob = uniboob; }
     public void setVoice(boolean voice) { this.voice = voice; }
 
     public GenderPlayer.Gender nextGender() {

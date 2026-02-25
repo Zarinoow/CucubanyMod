@@ -44,6 +44,21 @@ public class WildfireBridge {
         }
     }
 
+    public static void applyBreastParams(Player player, float bustSize, float xOffset, float yOffset, float zOffset, float cleavage) {
+        try {
+            GenderPlayer genderPlayer = WildfireGender.getOrAddPlayerById(player.getUUID());
+            if (genderPlayer != null) {
+                genderPlayer.updateBustSize(bustSize);
+                genderPlayer.getBreasts().updateXOffset(xOffset);
+                genderPlayer.getBreasts().updateYOffset(yOffset);
+                genderPlayer.getBreasts().updateZOffset(zOffset);
+                genderPlayer.getBreasts().updateCleavage(cleavage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void setLock(Player player, boolean locked) {
         try {
             GenderPlayer genderPlayer = WildfireGender.getPlayerById(player.getUUID());

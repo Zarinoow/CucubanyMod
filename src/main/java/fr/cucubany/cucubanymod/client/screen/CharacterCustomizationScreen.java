@@ -12,8 +12,12 @@ import fr.cucubany.cucubanymod.client.animation.ClientAnimationManager;
 import fr.cucubany.cucubanymod.client.skin.ClientSkinHelper;
 import fr.cucubany.cucubanymod.client.skin.WildfireBridge;
 import fr.cucubany.cucubanymod.client.widgets.GradientColorPicker;
+import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.skin.SendCharacterCreationPacket;
+import fr.cucubany.cucubanymod.roleplay.GenderOption;
+import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import fr.cucubany.cucubanymod.roleplay.dummy.DummyPlayer;
 import fr.cucubany.cucubanymod.roleplay.skin.CharacterAppearance;
 import fr.cucubany.cucubanymod.roleplay.skin.SkinManager;
@@ -21,6 +25,7 @@ import fr.cucubany.cucubanymod.roleplay.skin.custom.CharacterOption;
 import fr.cucubany.cucubanymod.roleplay.skin.custom.CustomizationData;
 import fr.cucubany.cucubanymod.roleplay.skin.custom.SkinPart;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.PlayerModel;
@@ -75,8 +80,21 @@ public class CharacterCustomizationScreen extends Screen {
 
     // Sexe du personnage
     private GenderPlayer.Gender currentGender = GenderPlayer.Gender.MALE;
-    private float bustSize = 0.5f;
 
+    // Morphologie poitrine (valeurs initiales = centre des plages config)
+    private float bustSize    = 0.5f;
+    private float bustXOffset = 0.0f;
+    private float bustYOffset = 0.0f;
+    private float bustZOffset = 0.0f;
+    private float bustCleavage = 0.05f;
+
+    // Sliders de morphologie (panneau droit, sous la grille)
+    private static final int BREAST_PANEL_HEIGHT = 108;
+    private AbstractSliderButton sliderBustSize;
+    private AbstractSliderButton sliderXOffset;
+    private AbstractSliderButton sliderYOffset;
+    private AbstractSliderButton sliderZOffset;
+    private AbstractSliderButton sliderCleavage;
 
     // Scroll pour la matrice de droite
     private float currentScroll = 0f;
@@ -100,6 +118,20 @@ public class CharacterCustomizationScreen extends Screen {
         this.isFirstCreation = isFirstCreation;
         this.dummyPlayer = new DummyPlayer(clientLevel, new GameProfile(UUID.randomUUID(), "DummyPlayer"));
         this.previewDummy = new DummyPlayer(clientLevel, new GameProfile(UUID.randomUUID(), "PreviewDummy"));
+
+        // Charge les valeurs de morphologie depuis la capability (re-édition ou reconnexion)
+        if (!isFirstCreation) {
+            Identity identity = IdentityProvider.getIdentity(player);
+            if (identity != null) {
+                GenderOption go = identity.getGenderOption();
+                this.currentGender = go.getGender();
+                this.bustSize    = go.getBustSize();
+                this.bustXOffset = go.getXOffset();
+                this.bustYOffset = go.getYOffset();
+                this.bustZOffset = go.getZOffset();
+                this.bustCleavage = go.getCleavage();
+            }
+        }
 
         initializeDefaults();
     }
@@ -186,6 +218,91 @@ public class CharacterCustomizationScreen extends Screen {
                 new TextComponent("Valider"),
                 btn -> sendValidationPacket()));
 
+        // --- Sliders de morphologie (panneau droit, au-dessus du bouton Valider) ---
+        int sx = this.width - RIGHT_PANEL_WIDTH + 10;
+        int sw = RIGHT_PANEL_WIDTH - 20;
+        int sh = 12;
+        // Positions de bas en haut : 5 sliders × 16px, séparateur titre à +8px au-dessus
+        int sy1 = this.height - 120;
+        int sy2 = this.height - 104;
+        int sy3 = this.height - 88;
+        int sy4 = this.height - 72;
+        int sy5 = this.height - 56;
+
+        {
+            final double min = CucubanyCommonConfigs.BREAST_SIZE_MIN.get();
+            final double max = CucubanyCommonConfigs.BREAST_SIZE_MAX.get();
+            final double init = clamp01((bustSize - min) / (max - min));
+            this.sliderBustSize = this.addRenderableWidget(new AbstractSliderButton(sx, sy1, sw, sh, new TextComponent(""), init) {
+                @Override protected void updateMessage() {
+                    setMessage(new TextComponent(String.format("Taille: %.2f", min + value * (max - min))));
+                }
+                @Override protected void applyValue() {
+                    bustSize = (float)(min + value * (max - min));
+                    updateBreastPreview();
+                }
+            });
+        }
+        {
+            final double min = CucubanyCommonConfigs.BREAST_X_OFFSET_MIN.get();
+            final double max = CucubanyCommonConfigs.BREAST_X_OFFSET_MAX.get();
+            final double init = clamp01((bustXOffset - min) / (max - min));
+            this.sliderXOffset = this.addRenderableWidget(new AbstractSliderButton(sx, sy2, sw, sh, new TextComponent(""), init) {
+                @Override protected void updateMessage() {
+                    setMessage(new TextComponent(String.format("Ecart: %.3f", min + value * (max - min))));
+                }
+                @Override protected void applyValue() {
+                    bustXOffset = (float)(min + value * (max - min));
+                    updateBreastPreview();
+                }
+            });
+        }
+        {
+            final double min = CucubanyCommonConfigs.BREAST_Y_OFFSET_MIN.get();
+            final double max = CucubanyCommonConfigs.BREAST_Y_OFFSET_MAX.get();
+            final double init = clamp01((bustYOffset - min) / (max - min));
+            this.sliderYOffset = this.addRenderableWidget(new AbstractSliderButton(sx, sy3, sw, sh, new TextComponent(""), init) {
+                @Override protected void updateMessage() {
+                    setMessage(new TextComponent(String.format("Hauteur: %.3f", min + value * (max - min))));
+                }
+                @Override protected void applyValue() {
+                    bustYOffset = (float)(min + value * (max - min));
+                    updateBreastPreview();
+                }
+            });
+        }
+        {
+            final double min = CucubanyCommonConfigs.BREAST_Z_OFFSET_MIN.get();
+            final double max = CucubanyCommonConfigs.BREAST_Z_OFFSET_MAX.get();
+            final double init = clamp01((bustZOffset - min) / (max - min));
+            this.sliderZOffset = this.addRenderableWidget(new AbstractSliderButton(sx, sy4, sw, sh, new TextComponent(""), init) {
+                @Override protected void updateMessage() {
+                    setMessage(new TextComponent(String.format("Profondeur: %.3f", min + value * (max - min))));
+                }
+                @Override protected void applyValue() {
+                    bustZOffset = (float)(min + value * (max - min));
+                    updateBreastPreview();
+                }
+            });
+        }
+        {
+            final double min = CucubanyCommonConfigs.BREAST_CLEAVAGE_MIN.get();
+            final double max = CucubanyCommonConfigs.BREAST_CLEAVAGE_MAX.get();
+            final double init = clamp01((bustCleavage - min) / (max - min));
+            this.sliderCleavage = this.addRenderableWidget(new AbstractSliderButton(sx, sy5, sw, sh, new TextComponent(""), init) {
+                @Override protected void updateMessage() {
+                    setMessage(new TextComponent(String.format("Decollete: %.3f", min + value * (max - min))));
+                }
+                @Override protected void applyValue() {
+                    bustCleavage = (float)(min + value * (max - min));
+                    updateBreastPreview();
+                }
+            });
+        }
+
+        // Aperçu initial sur le dummy
+        updateBreastPreview();
+
         updateWidgetsState();
 
         if (currentSelections.isEmpty()) {
@@ -217,12 +334,33 @@ public class CharacterCustomizationScreen extends Screen {
         }
     }
 
+    private boolean isBreastPanelVisible() {
+        return currentCategory == SkinPart.BODY &&
+                (currentGender == GenderPlayer.Gender.FEMALE || currentGender == GenderPlayer.Gender.OTHER);
+    }
+
+    private void updateBreastPreview() {
+        WildfireBridge.applyBreastParams(this.dummyPlayer, bustSize, bustXOffset, bustYOffset, bustZOffset, bustCleavage);
+    }
+
+    private static double clamp01(double v) {
+        return Math.max(0.0, Math.min(1.0, v));
+    }
+
     private void updateWidgetsState() {
         isUpdatingWidget = true;
 
         boolean isBody = (currentCategory == SkinPart.BODY);
         if (this.modelTypeButton != null) this.modelTypeButton.visible = isBody;
         if (this.sexButton != null) this.sexButton.visible = isBody;
+
+        // Sliders de morphologie : visibles uniquement en catégorie BODY avec genre approprié
+        boolean showBreast = isBreastPanelVisible();
+        if (this.sliderBustSize != null)  this.sliderBustSize.visible  = showBreast;
+        if (this.sliderXOffset != null)   this.sliderXOffset.visible   = showBreast;
+        if (this.sliderYOffset != null)   this.sliderYOffset.visible   = showBreast;
+        if (this.sliderZOffset != null)   this.sliderZOffset.visible   = showBreast;
+        if (this.sliderCleavage != null)  this.sliderCleavage.visible  = showBreast;
 
         if (this.colorPicker != null) {
             int[] palette = null;
@@ -281,6 +419,13 @@ public class CharacterCustomizationScreen extends Screen {
 
         renderSkinOptionsMatrix(poseStack, mouseX, mouseY, rightPanelX);
 
+        // --- Séparateur du panneau de morphologie ---
+        if (isBreastPanelVisible()) {
+            int separatorY = this.height - 40 - BREAST_PANEL_HEIGHT;
+            fill(poseStack, rightPanelX + 5, separatorY, this.width - 5, separatorY + 1, 0x55FFFFFF);
+            this.font.draw(poseStack, "Morphologie", rightPanelX + 10, separatorY + 4, 0x999999);
+        }
+
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }
 
@@ -293,7 +438,7 @@ public class CharacterCustomizationScreen extends Screen {
         }
 
         int startY = 40;
-        int endY = this.height - 40;
+        int endY = isBreastPanelVisible() ? (this.height - 40 - BREAST_PANEL_HEIGHT) : (this.height - 40);
         int viewHeight = endY - startY;
 
         int rows = (int) Math.ceil((double) options.size() / ITEMS_PER_ROW);
@@ -550,6 +695,10 @@ public class CharacterCustomizationScreen extends Screen {
                 this.isSlimModel,
                 currentGender,
                 this.bustSize,
+                this.bustXOffset,
+                this.bustYOffset,
+                this.bustZOffset,
+                this.bustCleavage,
                 selectedIds,
                 new HashMap<>(this.categoryColors)
         );

@@ -8,6 +8,7 @@ import com.wildfire.main.networking.PacketSendGenderInfo;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.IdentityUpdatePacket;
+import fr.cucubany.cucubanymod.config.CucubanyCommonConfigs;
 import fr.cucubany.cucubanymod.roleplay.GenderOption;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
@@ -82,17 +83,42 @@ public class SendCharacterCreationPacket {
             try {
                 GenderPlayer wPlayer = WildfireGender.getOrAddPlayerById(player.getUUID());
 
+                // Paramètres choisis par le joueur
                 wPlayer.updateGender(msg.appearance.getGender());
                 wPlayer.updateBustSize(msg.appearance.getBustSize());
+                wPlayer.getBreasts().updateXOffset(msg.appearance.getBustXOffset());
+                wPlayer.getBreasts().updateYOffset(msg.appearance.getBustYOffset());
+                wPlayer.getBreasts().updateZOffset(msg.appearance.getBustZOffset());
+                wPlayer.getBreasts().updateCleavage(msg.appearance.getBustCleavage());
+
+                // Valeurs fixes depuis la config serveur (communes à tous, cachées au joueur)
+                wPlayer.updateBounceMultiplier((float) CucubanyCommonConfigs.BREAST_BOUNCE_MULTIPLIER.get().doubleValue());
+                wPlayer.updateFloppiness((float) CucubanyCommonConfigs.BREAST_FLOPPY_MULTIPLIER.get().doubleValue());
+                wPlayer.updateBreastPhysics(CucubanyCommonConfigs.BREAST_PHYSICS.get());
+                wPlayer.updateArmorBreastPhysics(CucubanyCommonConfigs.BREAST_PHYSICS_ARMOR.get());
+                wPlayer.updateShowBreastsInArmor(CucubanyCommonConfigs.BREAST_SHOW_IN_ARMOR.get());
+                wPlayer.updateHurtSounds(CucubanyCommonConfigs.BREAST_HURT_SOUNDS.get());
+                wPlayer.getBreasts().updateUniboob(CucubanyCommonConfigs.BREAST_UNIBOOB.get());
 
                 GenderPlayer.saveGenderInfo(wPlayer);
                 PacketSendGenderInfo.send(wPlayer);
 
-                // Sauvegarde dans la capability du joueur
+                // Sauvegarde complète dans la capability du joueur
                 if (identity != null) {
                     GenderOption go = identity.getGenderOption();
                     go.setGender(msg.appearance.getGender());
                     go.setBustSize(msg.appearance.getBustSize());
+                    go.setXOffset(msg.appearance.getBustXOffset());
+                    go.setYOffset(msg.appearance.getBustYOffset());
+                    go.setZOffset(msg.appearance.getBustZOffset());
+                    go.setCleavage(msg.appearance.getBustCleavage());
+                    go.setBounceMultiplier((float) CucubanyCommonConfigs.BREAST_BOUNCE_MULTIPLIER.get().doubleValue());
+                    go.setFloppyMultiplier((float) CucubanyCommonConfigs.BREAST_FLOPPY_MULTIPLIER.get().doubleValue());
+                    go.setBreastPhysics(CucubanyCommonConfigs.BREAST_PHYSICS.get());
+                    go.setBreastPhysicsArmor(CucubanyCommonConfigs.BREAST_PHYSICS_ARMOR.get());
+                    go.setShowInArmor(CucubanyCommonConfigs.BREAST_SHOW_IN_ARMOR.get());
+                    go.setHurtSounds(CucubanyCommonConfigs.BREAST_HURT_SOUNDS.get());
+                    go.setUniboob(CucubanyCommonConfigs.BREAST_UNIBOOB.get());
                 }
 
             } catch (Exception e) {
