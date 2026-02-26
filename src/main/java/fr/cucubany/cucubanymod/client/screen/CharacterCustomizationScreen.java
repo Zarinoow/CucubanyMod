@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Vector3f;
 import com.wildfire.main.GenderPlayer;
 import fr.cucubany.cucubanymod.CucubanyMod;
@@ -43,6 +42,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.PlayerModelPart;
 
 import java.util.*;
 
@@ -908,7 +908,6 @@ public class CharacterCustomizationScreen extends Screen {
         poseStack.scale(scale, scale, scale);
         poseStack.translate(0, yOffset, 0);
 
-        RenderSystem.applyModelViewMatrix();
         Lighting.setupForEntityInInventory();
 
         float r = ((tintColor >> 16) & 0xFF) / 255.0F;
@@ -918,38 +917,55 @@ public class CharacterCustomizationScreen extends Screen {
         if (a == 0) a = 1.0F;
 
         RenderSystem.setShaderColor(r, g, b, a);
-        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        Minecraft mc = Minecraft.getInstance();
+        EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
         dispatcher.setRenderShadow(false);
 
-        MultiBufferSource.BufferSource immediateBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        // Overlay mask : setupAnim() lit isSkinLayerVisible() pour décider si hat/jacket/etc. sont
+        // visibles. On contrôle ça via DummyPlayer.setVisibleLayerMask() selon la partie affichée.
+        byte overlayMask = switch (partType) {
+            case HEAD  -> (byte)  PlayerModelPart.HAT.getMask();
+            case TORSO -> (byte) (PlayerModelPart.JACKET.getMask()
+                                | PlayerModelPart.LEFT_SLEEVE.getMask()
+                                | PlayerModelPart.RIGHT_SLEEVE.getMask());
+            case LEGS, FEET -> (byte) (PlayerModelPart.LEFT_PANTS_LEG.getMask()
+                                     | PlayerModelPart.RIGHT_PANTS_LEG.getMask());
+            default    -> (byte) 127; // FULL ou autre : tout visible
+        };
+        player.setVisibleLayerMask(overlayMask);
+
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
         if (dispatcher.getRenderer(player) instanceof LivingEntityRenderer renderer) {
             if (renderer.getModel() instanceof PlayerModel model) {
-                boolean headV  = model.head.visible;   boolean hatV     = model.hat.visible;
-                boolean bodyV  = model.body.visible;   boolean jacketV  = model.jacket.visible;
-                boolean rArmV  = model.rightArm.visible; boolean rSleeveV = model.rightSleeve.visible;
-                boolean lArmV  = model.leftArm.visible;  boolean lSleeveV = model.leftSleeve.visible;
-                boolean rLegV  = model.rightLeg.visible;  boolean rPantV   = model.rightPants.visible;
-                boolean lLegV  = model.leftLeg.visible;   boolean lPantV   = model.leftPants.visible;
+                boolean headV = model.head.visible;
+                boolean bodyV = model.body.visible;
+                boolean rArmV = model.rightArm.visible;
+                boolean lArmV = model.leftArm.visible;
+                boolean rLegV = model.rightLeg.visible;
+                boolean lLegV = model.leftLeg.visible;
 
+                // Masquer tous les membres de base ; les couches overlay sont gérées par setupAnim()
+                // via isSkinLayerVisible() (contrôlé par overlayMask ci-dessus).
                 model.setAllVisible(false);
-                if      (partType == SkinPart.DisplayPart.HEAD)  { model.head.visible = true; model.hat.visible = true; }
-                else if (partType == SkinPart.DisplayPart.TORSO) { model.body.visible = true; model.jacket.visible = true; model.rightArm.visible = true; model.rightSleeve.visible = true; model.leftArm.visible = true; model.leftSleeve.visible = true; }
-                else if (partType == SkinPart.DisplayPart.LEGS)  { model.rightLeg.visible = true; model.rightPants.visible = true; model.leftLeg.visible = true; model.leftPants.visible = true; }
-                else if (partType == SkinPart.DisplayPart.FEET)  { model.rightLeg.visible = true; model.rightPants.visible = true; model.leftLeg.visible = true; model.leftPants.visible = true; }
-                else if (partType == SkinPart.DisplayPart.FULL)  { model.setAllVisible(true); }
+                if      (partType == SkinPart.DisplayPart.HEAD)       { model.head.visible = true; }
+                else if (partType == SkinPart.DisplayPart.TORSO)      { model.body.visible = true; model.rightArm.visible = true; model.leftArm.visible = true; }
+                else if (partType == SkinPart.DisplayPart.LEGS
+                      || partType == SkinPart.DisplayPart.FEET)       { model.rightLeg.visible = true; model.leftLeg.visible = true; }
+                else if (partType == SkinPart.DisplayPart.FULL)       { model.setAllVisible(true); }
 
-                RenderSystem.runAsFancy(() -> dispatcher.render(player, 0.0D, 0.0D, 0.0D, rotY, 1.0F, poseStack, immediateBuffer, 15728880));
-                immediateBuffer.endBatch();
+                RenderSystem.runAsFancy(() -> dispatcher.render(player, 0.0D, 0.0D, 0.0D, rotY, 1.0F, poseStack, bufferSource, 15728880));
+                bufferSource.endBatch();
 
-                model.head.visible  = headV;  model.hat.visible      = hatV;
-                model.body.visible  = bodyV;  model.jacket.visible   = jacketV;
-                model.rightArm.visible = rArmV; model.rightSleeve.visible = rSleeveV;
-                model.leftArm.visible  = lArmV; model.leftSleeve.visible  = lSleeveV;
-                model.rightLeg.visible = rLegV; model.rightPants.visible  = rPantV;
-                model.leftLeg.visible  = lLegV; model.leftPants.visible   = lPantV;
+                model.head.visible     = headV;
+                model.body.visible     = bodyV;
+                model.rightArm.visible = rArmV;
+                model.leftArm.visible  = lArmV;
+                model.rightLeg.visible = rLegV;
+                model.leftLeg.visible  = lLegV;
             }
         }
+        player.setVisibleLayerMask((byte) 127); // réinitialise : toutes les couches visibles
         dispatcher.setRenderShadow(true);
         poseStack.popPose();
         Lighting.setupFor3DItems();
