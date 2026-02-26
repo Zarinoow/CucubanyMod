@@ -68,6 +68,9 @@ public class CharacterCustomizationScreen extends Screen {
     private static final float POPUP_ROTATION_Y   = 25f;
     private boolean morphologyPanelOpen = false;
 
+    // Layout variables dynamiques (calculées dans init)
+    private int popupX, popupY, actualPopupW, actualPopupH;
+
     // --- Variables d'état ---
     private float modelRotationY = 0f;
     private float modelRotationX = 0f;
@@ -155,10 +158,10 @@ public class CharacterCustomizationScreen extends Screen {
 
     @Override
     protected void init() {
+        // --- 1. BOUTONS INFÉRIEURS GAUCHE ---
         int bottomButtonY = this.height - 30;
         int sexButtonY    = bottomButtonY - 25;
 
-        // --- Bouton Sexe (rétréci pour laisser la place au bouton engrenage) ---
         this.sexButton = this.addRenderableWidget(new Button(10, sexButtonY, 76, 20,
                 new TextComponent(""),
                 btn -> {
@@ -174,7 +177,6 @@ public class CharacterCustomizationScreen extends Screen {
                 }));
         updateSexButtonText();
 
-        // --- Bouton engrenage (ouvre le popup morphologie) ---
         this.morphologyButton = this.addRenderableWidget(new Button(88, sexButtonY, 16, 20,
                 new TranslatableComponent("screen.cucubanymod.character_editor.morphology.button"),
                 btn -> {
@@ -188,48 +190,56 @@ public class CharacterCustomizationScreen extends Screen {
             this.sexButton.active = false;
         }
 
-        // --- Boutons catégories (panneau gauche) ---
-        int buttonY      = 40;
-        int buttonHeight = 20;
+        // --- 2. BOUTONS CATÉGORIES (RESPONSIVE) ---
+        int catButtonHeight = 20; // Hauteur fixe requise par Minecraft
+        int catSpacing = 5;
+        int numCategories = SkinPart.values().length;
+        int totalNeededHeight = numCategories * catButtonHeight + (numCategories - 1) * catSpacing;
+
+        int buttonY = 40;
+        int availableHeight = sexButtonY - 5 - buttonY; // Espace dispo
+
+        // Si ça ne passe pas, on réduit l'espacement et on remonte l'UI
+        if (totalNeededHeight > availableHeight) {
+            catSpacing = 1;
+            totalNeededHeight = numCategories * catButtonHeight + (numCategories - 1) * catSpacing;
+            if (totalNeededHeight > availableHeight) {
+                // On remonte au maximum (10 pixels du haut de l'écran)
+                buttonY = Math.max(10, sexButtonY - totalNeededHeight - 5);
+            }
+        }
+
         for (SkinPart part : SkinPart.values()) {
-            if (buttonY + buttonHeight > bottomButtonY - 10) break;
-            this.addRenderableWidget(new Button(10, buttonY, LEFT_PANEL_WIDTH - 20, buttonHeight,
+            this.addRenderableWidget(new Button(10, buttonY, LEFT_PANEL_WIDTH - 20, catButtonHeight,
                     new TranslatableComponent("screen.cucubanymod.character_editor.category." + part.name().toLowerCase()),
                     btn -> {
                         currentCategory = part;
                         currentScroll   = 0f;
                         updateWidgetsState();
                     }));
-            buttonY += buttonHeight + 5;
+            buttonY += catButtonHeight + catSpacing;
         }
 
-        // --- Color picker (panneau central bas) ---
-        int centerAreaWidth = this.width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH;
-        int pickerX         = LEFT_PANEL_WIDTH + (centerAreaWidth - 140) / 2;
-        this.colorPicker = this.addRenderableWidget(new GradientColorPicker(
-                pickerX, this.height - 35, 140, 20,
-                PALETTE_SKIN,
-                color -> {
-                    this.categoryColors.put(currentCategory, color);
-                    if (!isUpdatingWidget && this.colorPicker != null) {
-                        this.colorPickerValues.put(currentCategory, this.colorPicker.getValue());
-                    }
-                    this.currentTintForPreview = color;
-                    updateDummySkin();
-                }));
+        // --- 3. CALCULS RESPONSIVE POUR LE POPUP ---
+        this.actualPopupW = POPUP_W;
+        this.actualPopupH = POPUP_H;
 
-        // --- Bouton Valider (panneau droit) ---
-        this.addRenderableWidget(new Button(this.width - RIGHT_PANEL_WIDTH + 10, this.height - 30, RIGHT_PANEL_WIDTH - 20, 20,
-                new TranslatableComponent("screen.cucubanymod.character_editor.validate"),
-                btn -> sendValidationPacket()));
+        // Position par défaut (à gauche du panneau droit)
+        this.popupX = this.width - RIGHT_PANEL_WIDTH - actualPopupW - 10;
 
-        // --- Widgets du popup morphologie ---
-        // Ancré sur la droite de la zone centrale (évite le chevauchement avec l'entité)
-        int popupX = this.width - RIGHT_PANEL_WIDTH - POPUP_W - 10;
-        int popupY = (this.height - POPUP_H) / 2;
-        int sw     = POPUP_W - 16;
+        // SÉCURITÉ: Si le popup écrase trop l'entité (il faut min 80px pour le joueur), on décale le popup vers la droite,
+        // quitte à passer pardessus le panneau de droite (qui est inactif quand le popup est ouvert).
+        int minCharSpace = 80;
+        if (this.popupX < LEFT_PANEL_WIDTH + minCharSpace) {
+            this.popupX = LEFT_PANEL_WIDTH + minCharSpace;
+        }
 
-        // Bouton type de corps (slim / normal)
+        this.popupY = (this.height - actualPopupH) / 2;
+        if (this.popupY < 5) this.popupY = 5; // Empêche de sortir par le haut
+
+        int sw = actualPopupW - 16;
+
+        // --- Bouton type de corps ---
         this.modelTypePopupButton = this.addRenderableWidget(new Button(
                 popupX + 8, popupY + 33, sw, 18,
                 new TextComponent(""),
@@ -244,18 +254,18 @@ public class CharacterCustomizationScreen extends Screen {
             this.modelTypePopupButton.active = false;
         }
 
-        // Sliders poitrine (visibles seulement si FEMALE/OTHER et popup ouvert)
+        // --- Sliders poitrine ---
         {
             final double min  = CucubanyCommonConfigs.BREAST_SIZE_MIN.get();
             final double max  = CucubanyCommonConfigs.BREAST_SIZE_MAX.get();
             final double init = clamp01((bustSize - min) / (max - min));
             this.sliderBustSize = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 74, sw, 20, new TextComponent(""), init) { // slot 0
+                    popupX + 8, popupY + 74, sw, 20, new TextComponent(""), init) {
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
-                        I18n.get("screen.cucubanymod.character_editor.morphology.bust.size")
-                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
+                            I18n.get("screen.cucubanymod.character_editor.morphology.bust.size")
+                                    + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustSize = (float)(min + value * (max - min));
@@ -268,12 +278,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_X_OFFSET_MAX.get();
             final double init = clamp01((bustXOffset - min) / (max - min));
             this.sliderXOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 100, sw, 20, new TextComponent(""), init) { // slot 1
+                    popupX + 8, popupY + 100, sw, 20, new TextComponent(""), init) {
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
-                        I18n.get("screen.cucubanymod.character_editor.morphology.bust.x_offset")
-                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
+                            I18n.get("screen.cucubanymod.character_editor.morphology.bust.x_offset")
+                                    + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustXOffset = (float)(min + value * (max - min));
@@ -286,12 +296,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_Y_OFFSET_MAX.get();
             final double init = clamp01((bustYOffset - min) / (max - min));
             this.sliderYOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 126, sw, 20, new TextComponent(""), init) { // slot 2
+                    popupX + 8, popupY + 126, sw, 20, new TextComponent(""), init) {
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
-                        I18n.get("screen.cucubanymod.character_editor.morphology.bust.y_offset")
-                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
+                            I18n.get("screen.cucubanymod.character_editor.morphology.bust.y_offset")
+                                    + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustYOffset = (float)(min + value * (max - min));
@@ -304,12 +314,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_Z_OFFSET_MAX.get();
             final double init = clamp01((bustZOffset - min) / (max - min));
             this.sliderZOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 152, sw, 20, new TextComponent(""), init) { // slot 3
+                    popupX + 8, popupY + 152, sw, 20, new TextComponent(""), init) {
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
-                        I18n.get("screen.cucubanymod.character_editor.morphology.bust.z_offset")
-                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
+                            I18n.get("screen.cucubanymod.character_editor.morphology.bust.z_offset")
+                                    + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustZOffset = (float)(min + value * (max - min));
@@ -322,12 +332,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_CLEAVAGE_MAX.get();
             final double init = clamp01((bustCleavage - min) / (max - min));
             this.sliderCleavage = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 178, sw, 20, new TextComponent(""), init) { // slot 4
+                    popupX + 8, popupY + 178, sw, 20, new TextComponent(""), init) {
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
-                        I18n.get("screen.cucubanymod.character_editor.morphology.bust.cleavage")
-                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
+                            I18n.get("screen.cucubanymod.character_editor.morphology.bust.cleavage")
+                                    + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustCleavage = (float)(min + value * (max - min));
@@ -336,12 +346,31 @@ public class CharacterCustomizationScreen extends Screen {
             });
         }
 
-        // Tous les widgets du popup démarrent invisibles (popup fermé)
         setPopupWidgetsVisible(false);
+
+        // --- 4. Color picker ---
+        int centerAreaWidth = this.width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH;
+        int pickerX = LEFT_PANEL_WIDTH + (centerAreaWidth - 140) / 2;
+        this.colorPicker = this.addRenderableWidget(new GradientColorPicker(
+                pickerX, this.height - 35, 140, 20,
+                PALETTE_SKIN,
+                color -> {
+                    this.categoryColors.put(currentCategory, color);
+                    if (!isUpdatingWidget && this.colorPicker != null) {
+                        this.colorPickerValues.put(currentCategory, this.colorPicker.getValue());
+                    }
+                    this.currentTintForPreview = color;
+                    updateDummySkin();
+                }));
+
+        // --- 5. Bouton Valider ---
+        this.addRenderableWidget(new Button(this.width - RIGHT_PANEL_WIDTH + 10, this.height - 30, RIGHT_PANEL_WIDTH - 20, 20,
+                new TranslatableComponent("screen.cucubanymod.character_editor.validate"),
+                btn -> sendValidationPacket()));
 
         updateBreastPreview();
         updateWidgetsState();
-        updatePopupWidgets(); // Restaure la visibilité popup après redimensionnement
+        updatePopupWidgets();
 
         if (currentSelections.isEmpty()) {
             currentCategory = SkinPart.BODY;
@@ -384,7 +413,6 @@ public class CharacterCustomizationScreen extends Screen {
         return Math.max(0.0, Math.min(1.0, v));
     }
 
-    /** Rend tous les widgets du popup visibles ou invisibles d'un coup. */
     private void setPopupWidgetsVisible(boolean visible) {
         if (this.modelTypePopupButton != null) this.modelTypePopupButton.visible = visible;
         if (this.sliderBustSize  != null) this.sliderBustSize.visible  = visible;
@@ -394,13 +422,12 @@ public class CharacterCustomizationScreen extends Screen {
         if (this.sliderCleavage  != null) this.sliderCleavage.visible  = visible;
     }
 
-    /** Met à jour la visibilité des widgets du popup selon son état et le genre courant. */
     private void updatePopupWidgets() {
         if (!morphologyPanelOpen) {
             setPopupWidgetsVisible(false);
+            if (this.colorPicker != null) this.colorPicker.visible = true;
             return;
         }
-        // Popup ouvert : tout afficher, puis masquer les sliders si genre non approprié
         setPopupWidgetsVisible(true);
         boolean showBreast = isBreastGender();
         if (this.sliderBustSize  != null) this.sliderBustSize.visible  = showBreast;
@@ -408,6 +435,7 @@ public class CharacterCustomizationScreen extends Screen {
         if (this.sliderYOffset   != null) this.sliderYOffset.visible   = showBreast;
         if (this.sliderZOffset   != null) this.sliderZOffset.visible   = showBreast;
         if (this.sliderCleavage  != null) this.sliderCleavage.visible  = showBreast;
+        if (this.colorPicker     != null) this.colorPicker.visible     = false;
     }
 
     private void updateWidgetsState() {
@@ -417,7 +445,6 @@ public class CharacterCustomizationScreen extends Screen {
         if (this.sexButton        != null) this.sexButton.visible        = isBody;
         if (this.morphologyButton != null) this.morphologyButton.visible = isBody;
 
-        // Fermer le popup si on quitte la catégorie BODY
         if (morphologyPanelOpen && !isBody) {
             morphologyPanelOpen = false;
             updatePopupWidgets();
@@ -449,7 +476,7 @@ public class CharacterCustomizationScreen extends Screen {
         if (this.modelTypePopupButton == null) return;
         this.modelTypePopupButton.setMessage(new TranslatableComponent(
                 isSlimModel ? "screen.cucubanymod.character_editor.morphology.shape.slim"
-                            : "screen.cucubanymod.character_editor.morphology.shape.normal"));
+                        : "screen.cucubanymod.character_editor.morphology.shape.normal"));
     }
 
     private void updateSexButtonText() {
@@ -475,19 +502,32 @@ public class CharacterCustomizationScreen extends Screen {
 
         drawCenteredString(poseStack, this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 
-        int centerAreaWidth = this.width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH;
-        // Quand le popup est ouvert, décale l'entité sur le côté gauche et zoom légèrement
-        int centerX = morphologyPanelOpen
-                ? LEFT_PANEL_WIDTH + centerAreaWidth / 5
-                : LEFT_PANEL_WIDTH + centerAreaWidth / 2;
+        // --- CALCUL RESPONSIVE DE L'ENTITÉ ---
+        int centerX;
+        float effectiveZoom = modelZoom;
+
+        if (morphologyPanelOpen) {
+            int freeSpaceWidth = this.popupX - LEFT_PANEL_WIDTH;
+            centerX = LEFT_PANEL_WIDTH + (freeSpaceWidth / 2);
+
+            // Si l'espace pour l'entité est inférieur à 120 pixels, on réduit le zoom
+            if (freeSpaceWidth < 120) {
+                effectiveZoom = modelZoom * (freeSpaceWidth / 120f);
+            } else {
+                effectiveZoom = modelZoom * 1.1f;
+            }
+        } else {
+            int centerAreaWidth = this.width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH;
+            centerX = LEFT_PANEL_WIDTH + (centerAreaWidth / 2);
+        }
+
         int centerY = this.height / 2 + 50;
         float rotY = morphologyPanelOpen ? POPUP_ROTATION_Y : modelRotationY;
-        float effectiveZoom = morphologyPanelOpen ? modelZoom * 1.2f : modelZoom;
+
         drawEntityOnScreen(centerX, centerY, effectiveZoom, rotY, modelRotationX, dummyPlayer, partialTicks);
 
         renderSkinOptionsMatrix(poseStack, mouseX, mouseY, rightPanelX);
 
-        // Fond + labels du popup (avant super.render pour que les widgets soient au-dessus)
         if (morphologyPanelOpen) {
             renderMorphologyPopup(poseStack);
         } else drawCenteredString(poseStack, this.font, "Clic gauche + glisser pour tourner", centerX, this.height - 80, 0x44FFFFFF);
@@ -496,39 +536,28 @@ public class CharacterCustomizationScreen extends Screen {
     }
 
     private void renderMorphologyPopup(PoseStack poseStack) {
-        int popupX = this.width - RIGHT_PANEL_WIDTH - POPUP_W - 10;
-        int popupY = (this.height - POPUP_H) / 2;
+        fill(poseStack, popupX, popupY, popupX + actualPopupW, popupY + actualPopupH, 0xDD1A1A1A);
 
-        // Fond du popup
-        fill(poseStack, popupX, popupY, popupX + POPUP_W, popupY + POPUP_H, 0xDD1A1A1A);
+        fill(poseStack, popupX,                      popupY,                  popupX + actualPopupW, popupY + 1,              0xFF888888);
+        fill(poseStack, popupX,                      popupY + actualPopupH - 1, popupX + actualPopupW, popupY + actualPopupH,   0xFF888888);
+        fill(poseStack, popupX,                      popupY,                  popupX + 1,           popupY + actualPopupH,   0xFF888888);
+        fill(poseStack, popupX + actualPopupW - 1,   popupY,                  popupX + actualPopupW, popupY + actualPopupH,   0xFF888888);
 
-        // Bordure
-        fill(poseStack, popupX,                popupY,              popupX + POPUP_W,  popupY + 1,          0xFF888888);
-        fill(poseStack, popupX,                popupY + POPUP_H - 1, popupX + POPUP_W, popupY + POPUP_H,    0xFF888888);
-        fill(poseStack, popupX,                popupY,              popupX + 1,         popupY + POPUP_H,   0xFF888888);
-        fill(poseStack, popupX + POPUP_W - 1,  popupY,              popupX + POPUP_W,   popupY + POPUP_H,   0xFF888888);
-
-        // Titre
         drawCenteredString(poseStack, this.font,
                 I18n.get("screen.cucubanymod.character_editor.morphology.title"),
-                popupX + POPUP_W / 2, popupY + 8, 0xFFFFFF);
+                popupX + actualPopupW / 2, popupY + 8, 0xFFFFFF);
 
-        // Séparateur sous le titre
-        fill(poseStack, popupX + 8, popupY + 20, popupX + POPUP_W - 8, popupY + 21, 0x55FFFFFF);
+        fill(poseStack, popupX + 8, popupY + 20, popupX + actualPopupW - 8, popupY + 21, 0x55FFFFFF);
 
-        // Section "Corps"
         this.font.draw(poseStack,
                 I18n.get("screen.cucubanymod.character_editor.morphology.section.body"),
                 popupX + 8f, popupY + 24f, 0xAAAAAA);
-        // (le bouton modelTypePopupButton est placé à popupY+33, height 18)
 
-        // Section "Poitrine" (seulement si genre le permet)
         if (isBreastGender()) {
-            fill(poseStack, popupX + 8, popupY + 58, popupX + POPUP_W - 8, popupY + 59, 0x55FFFFFF);
+            fill(poseStack, popupX + 8, popupY + 58, popupX + actualPopupW - 8, popupY + 59, 0x55FFFFFF);
             this.font.draw(poseStack,
                     I18n.get("screen.cucubanymod.character_editor.morphology.section.bust"),
                     popupX + 8f, popupY + 62f, 0xAAAAAA);
-            // (les sliders commencent à popupY+69)
         }
     }
 
@@ -648,13 +677,12 @@ public class CharacterCustomizationScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Si le popup est ouvert, fermer si le clic est hors du panneau gauche ET hors du popup
         if (morphologyPanelOpen) {
             boolean inLeftPanel = mouseX >= 0 && mouseX <= LEFT_PANEL_WIDTH;
-            int popupX = this.width - RIGHT_PANEL_WIDTH - POPUP_W - 10;
-            int popupY = (this.height - POPUP_H) / 2;
-            boolean inPopup = mouseX >= popupX && mouseX <= popupX + POPUP_W
-                           && mouseY >= popupY && mouseY <= popupY + POPUP_H;
+            boolean inPopup = mouseX >= popupX && mouseX <= popupX + actualPopupW
+                    && mouseY >= popupY && mouseY <= popupY + actualPopupH;
+
+            // On autorise la fermeture si on clique n'importe où en dehors du popup et de la gauche
             if (!inLeftPanel && !inPopup) {
                 morphologyPanelOpen = false;
                 updatePopupWidgets();
@@ -666,7 +694,6 @@ public class CharacterCustomizationScreen extends Screen {
 
         int rightPanelX = this.width - RIGHT_PANEL_WIDTH;
 
-        // Clic sur la grille (désactivé quand popup ouvert)
         if (mouseX >= rightPanelX && !morphologyPanelOpen) {
             List<CharacterOption> options = CustomizationData.getOptionsByCategory(currentCategory);
             int startY   = 40;
@@ -740,7 +767,6 @@ public class CharacterCustomizationScreen extends Screen {
                 morphologyPanelOpen = false;
                 updatePopupWidgets();
             }
-            // Empêche la fermeture de l'écran dans tous les cas
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -847,7 +873,7 @@ public class CharacterCustomizationScreen extends Screen {
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() ->
-            dispatcher.render(player, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks, poseStack, buffer, 15728880));
+                dispatcher.render(player, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks, poseStack, buffer, 15728880));
         buffer.endBatch();
         dispatcher.setRenderShadow(true);
         poseStack.popPose();
