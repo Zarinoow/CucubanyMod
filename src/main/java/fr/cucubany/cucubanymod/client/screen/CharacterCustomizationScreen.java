@@ -529,7 +529,11 @@ public class CharacterCustomizationScreen extends Screen {
         renderSkinOptionsMatrix(poseStack, mouseX, mouseY, rightPanelX);
 
         if (morphologyPanelOpen) {
+            // Render popup at Z=300 to stay above 3D entity previews (drawn at Z=250)
+            poseStack.pushPose();
+            poseStack.translate(0, 0, 300);
             renderMorphologyPopup(poseStack);
+            poseStack.popPose();
         } else drawCenteredString(poseStack, this.font, "Clic gauche + glisser pour tourner", centerX, this.height - 80, 0x44FFFFFF);
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
