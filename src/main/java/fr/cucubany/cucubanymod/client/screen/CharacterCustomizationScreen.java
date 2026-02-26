@@ -63,8 +63,9 @@ public class CharacterCustomizationScreen extends Screen {
     private static final int ITEMS_PER_ROW     = 3;
 
     // --- POPUP MORPHOLOGIE ---
-    private static final int POPUP_W = 180;
-    private static final int POPUP_H = 172;
+    private static final int   POPUP_W            = 180;
+    private static final int   POPUP_H            = 210;
+    private static final float POPUP_ROTATION_Y   = 25f;
     private boolean morphologyPanelOpen = false;
 
     // --- Variables d'état ---
@@ -249,12 +250,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_SIZE_MAX.get();
             final double init = clamp01((bustSize - min) / (max - min));
             this.sliderBustSize = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 69, sw, 16, new TextComponent(""), init) { // slot 0
+                    popupX + 8, popupY + 74, sw, 20, new TextComponent(""), init) { // slot 0
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
                         I18n.get("screen.cucubanymod.character_editor.morphology.bust.size")
-                        + ": " + String.format("%.2f", min + value * (max - min))));
+                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustSize = (float)(min + value * (max - min));
@@ -267,12 +268,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_X_OFFSET_MAX.get();
             final double init = clamp01((bustXOffset - min) / (max - min));
             this.sliderXOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 89, sw, 16, new TextComponent(""), init) { // slot 1 (+20)
+                    popupX + 8, popupY + 100, sw, 20, new TextComponent(""), init) { // slot 1
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
                         I18n.get("screen.cucubanymod.character_editor.morphology.bust.x_offset")
-                        + ": " + String.format("%.3f", min + value * (max - min))));
+                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustXOffset = (float)(min + value * (max - min));
@@ -285,12 +286,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_Y_OFFSET_MAX.get();
             final double init = clamp01((bustYOffset - min) / (max - min));
             this.sliderYOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 109, sw, 16, new TextComponent(""), init) { // slot 2 (+20)
+                    popupX + 8, popupY + 126, sw, 20, new TextComponent(""), init) { // slot 2
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
                         I18n.get("screen.cucubanymod.character_editor.morphology.bust.y_offset")
-                        + ": " + String.format("%.3f", min + value * (max - min))));
+                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustYOffset = (float)(min + value * (max - min));
@@ -303,12 +304,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_Z_OFFSET_MAX.get();
             final double init = clamp01((bustZOffset - min) / (max - min));
             this.sliderZOffset = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 129, sw, 16, new TextComponent(""), init) { // slot 3 (+20)
+                    popupX + 8, popupY + 152, sw, 20, new TextComponent(""), init) { // slot 3
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
                         I18n.get("screen.cucubanymod.character_editor.morphology.bust.z_offset")
-                        + ": " + String.format("%.3f", min + value * (max - min))));
+                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustZOffset = (float)(min + value * (max - min));
@@ -321,12 +322,12 @@ public class CharacterCustomizationScreen extends Screen {
             final double max  = CucubanyCommonConfigs.BREAST_CLEAVAGE_MAX.get();
             final double init = clamp01((bustCleavage - min) / (max - min));
             this.sliderCleavage = this.addRenderableWidget(new AbstractSliderButton(
-                    popupX + 8, popupY + 149, sw, 16, new TextComponent(""), init) { // slot 4 (+20)
+                    popupX + 8, popupY + 178, sw, 20, new TextComponent(""), init) { // slot 4
                 { updateMessage(); }
                 @Override protected void updateMessage() {
                     setMessage(new TextComponent(
                         I18n.get("screen.cucubanymod.character_editor.morphology.bust.cleavage")
-                        + ": " + String.format("%.3f", min + value * (max - min))));
+                        + ": " + String.format("%d%%", (int)Math.round(value * 100))));
                 }
                 @Override protected void applyValue() {
                     bustCleavage = (float)(min + value * (max - min));
@@ -475,21 +476,21 @@ public class CharacterCustomizationScreen extends Screen {
         drawCenteredString(poseStack, this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 
         int centerAreaWidth = this.width - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH;
-        // Quand le popup est ouvert, décale l'entité vers le quart gauche pour éviter le chevauchement
+        // Quand le popup est ouvert, décale l'entité sur le côté gauche et zoom légèrement
         int centerX = morphologyPanelOpen
-                ? LEFT_PANEL_WIDTH + centerAreaWidth / 4
+                ? LEFT_PANEL_WIDTH + centerAreaWidth / 5
                 : LEFT_PANEL_WIDTH + centerAreaWidth / 2;
         int centerY = this.height / 2 + 50;
-        drawEntityOnScreen(centerX, centerY, modelZoom, modelRotationY, modelRotationX, dummyPlayer, partialTicks);
-
-        drawCenteredString(poseStack, this.font, "Clic gauche + glisser pour tourner", centerX, this.height - 80, 0x44FFFFFF);
+        float rotY = morphologyPanelOpen ? POPUP_ROTATION_Y : modelRotationY;
+        float effectiveZoom = morphologyPanelOpen ? modelZoom * 1.2f : modelZoom;
+        drawEntityOnScreen(centerX, centerY, effectiveZoom, rotY, modelRotationX, dummyPlayer, partialTicks);
 
         renderSkinOptionsMatrix(poseStack, mouseX, mouseY, rightPanelX);
 
         // Fond + labels du popup (avant super.render pour que les widgets soient au-dessus)
         if (morphologyPanelOpen) {
             renderMorphologyPopup(poseStack);
-        }
+        } else drawCenteredString(poseStack, this.font, "Clic gauche + glisser pour tourner", centerX, this.height - 80, 0x44FFFFFF);
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
     }
@@ -497,9 +498,6 @@ public class CharacterCustomizationScreen extends Screen {
     private void renderMorphologyPopup(PoseStack poseStack) {
         int popupX = this.width - RIGHT_PANEL_WIDTH - POPUP_W - 10;
         int popupY = (this.height - POPUP_H) / 2;
-
-        // Assombrissement de l'arrière-plan
-        fill(poseStack, 0, 0, this.width, this.height, 0x88000000);
 
         // Fond du popup
         fill(poseStack, popupX, popupY, popupX + POPUP_W, popupY + POPUP_H, 0xDD1A1A1A);
@@ -727,12 +725,25 @@ public class CharacterCustomizationScreen extends Screen {
                 currentScroll  = Mth.clamp(currentScroll, 0, totalHeight - viewHeight);
             }
             return true;
-        } else if (mouseX > LEFT_PANEL_WIDTH) {
+        } else if (mouseX > LEFT_PANEL_WIDTH && !morphologyPanelOpen) {
             modelZoom += delta * 2.0f;
             modelZoom  = Mth.clamp(modelZoom, 30.0f, 120.0f);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 256) { // ESC
+            if (morphologyPanelOpen) {
+                morphologyPanelOpen = false;
+                updatePopupWidgets();
+            }
+            // Empêche la fermeture de l'écran dans tous les cas
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     // -------------------------------------------------------------------------
