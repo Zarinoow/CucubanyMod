@@ -55,6 +55,19 @@
   "screen.cucubanymod.character_editor.category.shoes": "Shoes",
   "screen.cucubanymod.character_editor.option.none": "No option available",
   "screen.cucubanymod.character_editor.button.rotation": "Rotation : {0}°",
+  "screen.cucubanymod.character_editor.validate": "Validate",
+
+  "screen.cucubanymod.character_editor.morphology.button": "⚙",
+  "screen.cucubanymod.character_editor.morphology.title": "Morphology",
+  "screen.cucubanymod.character_editor.morphology.section.body": "Body",
+  "screen.cucubanymod.character_editor.morphology.section.bust": "Bust",
+  "screen.cucubanymod.character_editor.morphology.shape.slim": "Slim",
+  "screen.cucubanymod.character_editor.morphology.shape.normal": "Normal",
+  "screen.cucubanymod.character_editor.morphology.bust.size": "Size",
+  "screen.cucubanymod.character_editor.morphology.bust.x_offset": "Width",
+  "screen.cucubanymod.character_editor.morphology.bust.y_offset": "Height",
+  "screen.cucubanymod.character_editor.morphology.bust.z_offset": "Depth",
+  "screen.cucubanymod.character_editor.morphology.bust.cleavage": "Cleavage",
 
 
   "key.categories.cucubanymod": "Cucubany",
