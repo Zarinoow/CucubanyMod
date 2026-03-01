@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +18,8 @@ public class SkinManager {
     public static ResourceLocation generateSkin(List<CharacterOption> selectedParts, Map<SkinPart, Integer> tintColors) {
         NativeImage skinImage = new NativeImage(64, 64, true);
 
-        // Trie important : Body(0) < Hair/Eyes/Brows < Clothes
-        selectedParts.sort((o1, o2) -> Integer.compare(o1.category().ordinal(), o2.category().ordinal()));
+        // Tri par renderPriority : valeur faible = calque du bas, valeur élevée = par-dessus
+        selectedParts.sort(Comparator.comparingInt(o -> o.category().getRenderPriority()));
 
         try {
             for (CharacterOption part : selectedParts) {

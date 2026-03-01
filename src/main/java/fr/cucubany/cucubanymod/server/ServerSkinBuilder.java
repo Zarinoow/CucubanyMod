@@ -46,8 +46,8 @@ public class ServerSkinBuilder {
             }
         }
 
-        // 3. Tri (Corps en premier, Vêtements après)
-        optionsToApply.sort(Comparator.comparingInt(o -> o.category().ordinal()));
+        // 3. Tri par renderPriority : valeur faible = calque du bas, valeur élevée = par-dessus
+        optionsToApply.sort(Comparator.comparingInt(o -> o.category().getRenderPriority()));
 
         // 4. Application des calques
         for (CharacterOption option : optionsToApply) {
