@@ -217,6 +217,7 @@ dependencies {
     implementation fg.deobf("curse.maven:zombie-extreme-392809:4746394")
     implementation fg.deobf("curse.maven:worldedit-225608:3697298")
     implementation fg.deobf("maven.modrinth:female-gender:2.9-forge")
+    implementation fg.deobf("maven.modrinth:decocraft:3.0.4-1.18.2")
     implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:1.0.2+1.18")
     implementation fg.deobf("io.github.kosmx.bendy-lib:bendy-lib-forge:2.1.1")
     // Examples using mod jars from ./libs

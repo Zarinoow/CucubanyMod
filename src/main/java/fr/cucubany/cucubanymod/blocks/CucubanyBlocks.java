@@ -21,17 +21,18 @@ public class CucubanyBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CucubanyMod.MOD_ID);
 
-    private static <T extends Block>RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
+    protected static <T extends Block>RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
         RegistryObject<T> registryObject = BLOCKS.register(name, block);
         registerBlockItem(name, registryObject, tab);
         return registryObject;
     }
 
-    private static <T extends Block>RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
+    protected static <T extends Block>RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
         return CucubanyItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
     }
 
     public static void register(IEventBus eventBus) {
+        CucubanyClosetBlocks.init();
         BLOCKS.register(eventBus);
     }
 
@@ -53,6 +54,5 @@ public class CucubanyBlocks {
                     .requiresCorrectToolForDrops()
                     .noOcclusion()),
             CucubanyCreativeModeTab.CUCUBANY_TAB);
-
 
 }

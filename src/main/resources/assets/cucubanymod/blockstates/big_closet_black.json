@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "decocraft:closet_2_black", "y": 0},
+    "facing=east":  {"model": "decocraft:closet_2_black", "y": 90},
+    "facing=south": {"model": "decocraft:closet_2_black", "y": 180},
+    "facing=west":  {"model": "decocraft:closet_2_black", "y": 270}
+  }
+}

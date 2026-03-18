@@ -1,5 +1,6 @@
 {
   "itemGroup.cucubanytab": "Cucubany",
+  "itemGroup.cucubany_skins": "Cucubany Skins",
 
 
   "item.cucubanymod.id_card": "Identity Card",
@@ -15,6 +16,32 @@
 
   "block.cucubanymod.vent_block": "Vent Block",
   "block.cucubanymod.vent_door": "Vent Door",
+
+  "block.cucubanymod.closet_birch": "Closet Spruce",
+  "block.cucubanymod.closet_black": "Closet Black",
+  "block.cucubanymod.closet_cherry": "Closet Cherry",
+  "block.cucubanymod.closet_ebony": "Closet Ebony",
+  "block.cucubanymod.closet_oak": "Closet Oak",
+  "block.cucubanymod.closet_palm": "Closet Palm",
+  "block.cucubanymod.closet_spruce": "Closet Spruce",
+  "block.cucubanymod.closet_white": "Closet White",
+  "block.cucubanymod.big_closet_birch": "Big Closet Birch",
+  "block.cucubanymod.big_closet_black": "Big Closet Black",
+  "block.cucubanymod.big_closet_cherry": "Big Closet Cherry",
+  "block.cucubanymod.big_closet_ebony": "Big Closet Ebony",
+  "block.cucubanymod.big_closet_oak": "Big Closet Oak",
+  "block.cucubanymod.big_closet_palm": "Big Closet Palm",
+  "block.cucubanymod.big_closet_spruce": "Big Closet Spruce",
+  "block.cucubanymod.big_closet_white": "Big Closet White",
+
+  "block.cucubanymod.shoebox_birch": "Shoebox Spruce",
+  "block.cucubanymod.shoebox_black": "Shoebox Black",
+  "block.cucubanymod.shoebox_cherry": "Shoebox Cherry",
+  "block.cucubanymod.shoebox_ebony": "Shoebox Ebony",
+  "block.cucubanymod.shoebox_oak": "Shoebox Oak",
+  "block.cucubanymod.shoebox_palm": "Shoebox Palm",
+  "block.cucubanymod.shoebox_spruce": "Shoebox Spruce",
+  "block.cucubanymod.shoebox_white": "Shoebox White",
 
 
   "sound.cucubanymod.vent_open": "Vent Open",

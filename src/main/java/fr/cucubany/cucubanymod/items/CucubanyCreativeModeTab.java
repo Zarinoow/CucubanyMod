@@ -1,5 +1,6 @@
 package fr.cucubany.cucubanymod.items;
 
+import fr.cucubany.cucubanymod.blocks.CucubanyClosetBlocks;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -9,6 +10,13 @@ public class CucubanyCreativeModeTab {
         @Override
         public ItemStack makeIcon() {
             return new ItemStack(CucubanyItems.IDENTITY_CARD.get());
+        }
+    };
+
+    public static final CreativeModeTab SKINS_TAB = new CreativeModeTab("cucubany_skins") {
+        @Override
+        public ItemStack makeIcon() {
+            return new ItemStack(CucubanyClosetBlocks.CLOSET_BIRCH.get());
         }
     };
 }

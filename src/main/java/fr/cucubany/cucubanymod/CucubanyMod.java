@@ -1,7 +1,9 @@
 package fr.cucubany.cucubanymod;
 
 import com.mojang.logging.LogUtils;
+import fr.cucubany.cucubanymod.blocks.CucubanyBlockEntities;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlocks;
+import fr.cucubany.cucubanymod.client.renderer.ClosetBlockEntityRenderer;
 import fr.cucubany.cucubanymod.client.events.ClientModEvents;
 import fr.cucubany.cucubanymod.client.events.ExposureClientEvents;
 import fr.cucubany.cucubanymod.client.events.WildfireGuiLockEvent;
@@ -23,6 +25,7 @@ import fr.cucubany.cucubanymod.sounds.CucubanySounds;
 import fr.cucubany.cucubanymod.world.biome.CucubanyBiomes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,6 +61,7 @@ public class CucubanyMod
         CucubanyBiomes.register(modEventBus);
         CucubanyItems.register(modEventBus);
         CucubanyBlocks.register(modEventBus);
+        CucubanyBlockEntities.register(modEventBus);
         CucubanySounds.register(modEventBus);
         CucubanyEffects.register(modEventBus);
 
@@ -89,6 +93,9 @@ public class CucubanyMod
     private void clientSetup(final FMLClientSetupEvent event) {
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_BLOCK.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_DOOR.get(), RenderType.cutout());
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_SIMPLE.get(), ClosetBlockEntityRenderer::new);
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_DOUBLE.get(), ClosetBlockEntityRenderer::new);
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_BIG.get(), ClosetBlockEntityRenderer::new);
         KeyBinding.register();
         MinecraftForge.EVENT_BUS.register(ExposureClientEvents.class);
         MinecraftForge.EVENT_BUS.register(ClientModEvents.class);
