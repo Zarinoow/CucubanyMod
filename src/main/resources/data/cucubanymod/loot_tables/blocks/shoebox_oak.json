@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "decocraft:closet_1_oak"
+          "name": "cucubanymod:shoebox_oak"
         }
       ],
       "conditions": [

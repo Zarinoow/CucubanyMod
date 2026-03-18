@@ -4,7 +4,6 @@ import fr.cucubany.cucubanymod.roleplay.skin.custom.SkinPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -23,12 +22,12 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class ClosetClassicBlock extends ClosetBlock implements EntityBlock {
+public class ClassicClosetBlock extends ClosetBlock {
 
     // Propriétés du bloc
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 
-    public ClosetClassicBlock(Properties pProperties) {
+    public ClassicClosetBlock(Properties pProperties) {
         super(pProperties);
     }
 
@@ -147,13 +146,13 @@ public class ClosetClassicBlock extends ClosetBlock implements EntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockState state = super.getStateForPlacement(context);
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
 
         // On vérifie s'il y a bien la place de poser le bloc du haut (Y+1)
         if (pos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(pos.above()).canBeReplaced(context)) {
-            return this.defaultBlockState()
-                    .setValue(FACING, context.getHorizontalDirection().getOpposite())
+            return state
                     .setValue(HALF, DoubleBlockHalf.LOWER);
         }
         return null; // Annule le placement si le plafond est trop bas
@@ -202,7 +201,7 @@ public class ClosetClassicBlock extends ClosetBlock implements EntityBlock {
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         // On ne crée une BlockEntity que pour la partie basse (celle qui est rendue).
         return state.getValue(HALF) == DoubleBlockHalf.LOWER
-                ? new ClosetClassicBlockEntity(pos, state)
+                ? new DoubleClosetBlockEntity(pos, state)
                 : null;
     }
 

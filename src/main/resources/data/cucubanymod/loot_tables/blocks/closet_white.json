@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:closet_classic_white"
+          "name": "cucubanymod:closet_white"
         }
       ],
       "conditions": [

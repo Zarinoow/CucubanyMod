@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "decocraft:closet_1_spruce"
+          "name": "cucubanymod:shoebox_spruce"
         }
       ],
       "conditions": [
