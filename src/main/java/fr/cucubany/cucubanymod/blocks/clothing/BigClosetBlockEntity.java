@@ -1,10 +1,16 @@
 package fr.cucubany.cucubanymod.blocks.clothing;
 
 import fr.cucubany.cucubanymod.blocks.CucubanyBlockEntities;
+import fr.cucubany.cucubanymod.blocks.HugeBlockAABBHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+import static fr.cucubany.cucubanymod.blocks.clothing.BigClosetBlock.HALF;
+import static fr.cucubany.cucubanymod.blocks.clothing.ClosetBlock.FACING;
 
 public class BigClosetBlockEntity extends ClosetBlockEntity {
 
@@ -12,25 +18,21 @@ public class BigClosetBlockEntity extends ClosetBlockEntity {
         super(CucubanyBlockEntities.CLOSET_BIG.get(), pos, state);
     }
 
-    /**
-     * AABB étendue à 2×1×2 blocs (largeur × profondeur × hauteur) pour que
-     * le frustum culling de Forge ne supprime pas le modèle quand une partie
-     * sort de la AABB par défaut (1×1×1) du bloc inférieur gauche.
-     *
-     * La direction de la moitié latérale (OTHER) dépend du FACING du bloc.
-     */
     @Override
     public AABB getRenderBoundingBox() {
-        BlockPos  pos     = getBlockPos();
-        BlockState state  = getBlockState();
-        Direction sideDir = state.getValue(ClosetBlock.FACING).getClockWise();
-        BlockPos  other   = pos.relative(sideDir);
+        return HugeBlockAABBHelper.getOrientedBox(getBlockPos(), getBlockState().getValue(ClosetBlock.FACING), 2, 2, 1);
+    }
 
-        int minX = Math.min(pos.getX(), other.getX());
-        int minZ = Math.min(pos.getZ(), other.getZ());
-        int maxX = Math.max(pos.getX(), other.getX()) + 1;
-        int maxZ = Math.max(pos.getZ(), other.getZ()) + 1;
+    @Override
+    public boolean isMainPart() {
+        return this.getBlockState().getValue(HALF) == DoubleBlockHalf.LOWER;
+    }
 
-        return new AABB(minX, pos.getY(), minZ, maxX, pos.getY() + 2, maxZ);
+    @Override
+    public Vec3 getModelOffset() {
+        Direction facing = this.getBlockState().getValue(FACING);
+        Direction left = facing.getClockWise();
+        // On décale de 1 bloc vers la gauche du facing
+        return new Vec3(left.getStepX(), 0, left.getStepZ());
     }
 }

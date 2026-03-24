@@ -4,12 +4,8 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import fr.cucubany.cucubanymod.blocks.clothing.BigClosetBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import fr.cucubany.cucubanymod.blocks.clothing.ClassicClosetBlock;
-import fr.cucubany.cucubanymod.blocks.clothing.ClosetBlock;
-import fr.cucubany.cucubanymod.blocks.clothing.ClosetBlockEntity;
+import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.blocks.IBBBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -19,20 +15,22 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import java.util.Random;
 
-public class ClosetBlockEntityRenderer implements BlockEntityRenderer<ClosetBlockEntity> {
+public class BlockBenchEntityRenderer<T extends BlockEntity & IBBBlockEntity> implements BlockEntityRenderer<T> {
 
-    private static final RenderType CLOSET_CUTOUT = new RenderStateShard("closet_build", () -> {}, () -> {}) {
+    private static final RenderType BB_CUTOUT = new RenderStateShard("bb_build", () -> {}, () -> {}) {
         RenderType make() {
             return RenderType.create(
-                    "cucubanymod:closet_cutout",
+                    CucubanyMod.MOD_ID + ":bb_cutout",
                     DefaultVertexFormat.BLOCK,
                     VertexFormat.Mode.QUADS,
                     131072, true, false,
@@ -48,44 +46,33 @@ public class ClosetBlockEntityRenderer implements BlockEntityRenderer<ClosetBloc
         }
     }.make();
 
-    public ClosetBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+    public BlockBenchEntityRenderer(BlockEntityRendererProvider.Context ctx) {
     }
 
     @Override
-    public void render(ClosetBlockEntity be, float partialTick, PoseStack poseStack,
-                       MultiBufferSource buffers, int packedLight, int packedOverlay) {
+    public void render(T be, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int packedLight, int packedOverlay) {
 
-        BlockState state = be.getBlockState();
-
-        // ADAPTATION MULTI-TAILLES :
-        // 1. Si c'est un bloc à 2 étages (possède la propriété HALF), on ne rend que la partie LOWER.
-        if (state.hasProperty(ClassicClosetBlock.HALF)) {
-            if (state.getValue(ClassicClosetBlock.HALF) != DoubleBlockHalf.LOWER) return;
-        }
-
-        // 2. Pour les futurs blocs 4x4, si tu utilises une propriété genre "MASTER_BLOCK" ou une position:
-        // if (state.hasProperty(TonBlocGeant.IS_MASTER) && !state.getValue(TonBlocGeant.IS_MASTER)) return;
+        // 1. On vérifie si c'est la partie principale (évite les doublons de rendu)
+        if (!be.isMainPart()) return;
 
         Level level = be.getLevel();
+        BlockState state = be.getBlockState();
         if (level == null) return;
 
-        // Pour le BigCloset, décaler le modèle d'1 bloc vers sa gauche (direction du bloc OTHER).
-        // La gauche du modèle vue de face = facing.getClockWise().
-        boolean isBigCloset = state.getBlock() instanceof BigClosetBlock;
-        if (isBigCloset) {
-            Direction left = state.getValue(ClosetBlock.FACING).getClockWise();
-            poseStack.pushPose();
-            poseStack.translate(left.getStepX(), 0, left.getStepZ());
+        // 2. Récupération du décalage via l'interface
+        Vec3 offset = be.getModelOffset();
+
+        poseStack.pushPose();
+        if (offset != Vec3.ZERO) {
+            poseStack.translate(offset.x, offset.y, offset.z);
         }
 
-        BlockPos renderPos = isBigCloset
-                ? be.getBlockPos().relative(state.getValue(ClosetBlock.FACING).getClockWise())
-                : be.getBlockPos();
-
+        // Le modèle est rendu à sa position réelle + l'offset visuel
+        BlockPos renderPos = be.getBlockPos().offset(offset.x, offset.y, offset.z);
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
 
-        ForgeHooksClient.setRenderType(CLOSET_CUTOUT);
-        VertexConsumer consumer = new FixedLightConsumer(buffers.getBuffer(CLOSET_CUTOUT), packedLight);
+        ForgeHooksClient.setRenderType(BB_CUTOUT);
+        VertexConsumer consumer = new FixedLightConsumer(buffers.getBuffer(BB_CUTOUT), packedLight);
 
         ModelBlockRenderer renderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         renderer.tesselateWithoutAO(
@@ -95,13 +82,10 @@ public class ClosetBlockEntityRenderer implements BlockEntityRenderer<ClosetBloc
         );
 
         ForgeHooksClient.setRenderType(null);
-
-        if (isBigCloset) {
-            poseStack.popPose();
-        }
+        poseStack.popPose();
 
         if (buffers instanceof MultiBufferSource.BufferSource bufferSource) {
-            bufferSource.endBatch(CLOSET_CUTOUT);
+            bufferSource.endBatch(BB_CUTOUT);
         }
     }
 

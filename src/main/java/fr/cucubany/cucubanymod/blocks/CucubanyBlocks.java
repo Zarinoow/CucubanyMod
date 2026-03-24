@@ -55,4 +55,11 @@ public class CucubanyBlocks {
                     .noOcclusion()),
             CucubanyCreativeModeTab.CUCUBANY_TAB);
 
+    public static final RegistryObject<Block> ATM = registerBlock("atm", () ->
+            new Block(BlockBehaviour.Properties
+                    .of(Material.METAL)
+                    .strength(9f)
+                    .noOcclusion()),
+            CucubanyCreativeModeTab.CUCUBANY_TAB);
+
 }

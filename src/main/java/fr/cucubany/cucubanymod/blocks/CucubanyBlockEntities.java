@@ -1,6 +1,7 @@
 package fr.cucubany.cucubanymod.blocks;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.blocks.advanced.AtmBlockEntity;
 import fr.cucubany.cucubanymod.blocks.clothing.BigClosetBlockEntity;
 import fr.cucubany.cucubanymod.blocks.clothing.ClosetBlockEntity;
 import fr.cucubany.cucubanymod.blocks.clothing.DoubleClosetBlockEntity;
@@ -14,6 +15,12 @@ public class CucubanyBlockEntities {
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, CucubanyMod.MOD_ID);
+
+    public static final RegistryObject<BlockEntityType<AtmBlockEntity>> ATM =
+            BLOCK_ENTITIES.register("atm", () ->
+                    BlockEntityType.Builder.of(AtmBlockEntity::new,
+                            CucubanyBlocks.ATM.get()
+                    ).build(null));
 
     public static final RegistryObject<BlockEntityType<ClosetBlockEntity>> CLOSET_SIMPLE =
             BLOCK_ENTITIES.register("closet_simple", () ->

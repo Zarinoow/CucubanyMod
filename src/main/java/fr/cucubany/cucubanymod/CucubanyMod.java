@@ -3,7 +3,7 @@ package fr.cucubany.cucubanymod;
 import com.mojang.logging.LogUtils;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlockEntities;
 import fr.cucubany.cucubanymod.blocks.CucubanyBlocks;
-import fr.cucubany.cucubanymod.client.renderer.ClosetBlockEntityRenderer;
+import fr.cucubany.cucubanymod.client.renderer.BlockBenchEntityRenderer;
 import fr.cucubany.cucubanymod.client.events.ClientModEvents;
 import fr.cucubany.cucubanymod.client.events.ExposureClientEvents;
 import fr.cucubany.cucubanymod.client.events.WildfireGuiLockEvent;
@@ -93,9 +93,9 @@ public class CucubanyMod
     private void clientSetup(final FMLClientSetupEvent event) {
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_BLOCK.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_DOOR.get(), RenderType.cutout());
-        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_SIMPLE.get(), ClosetBlockEntityRenderer::new);
-        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_DOUBLE.get(), ClosetBlockEntityRenderer::new);
-        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_BIG.get(), ClosetBlockEntityRenderer::new);
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_SIMPLE.get(), BlockBenchEntityRenderer::new);
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_DOUBLE.get(), BlockBenchEntityRenderer::new);
+        BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_BIG.get(), BlockBenchEntityRenderer::new);
         KeyBinding.register();
         MinecraftForge.EVENT_BUS.register(ExposureClientEvents.class);
         MinecraftForge.EVENT_BUS.register(ClientModEvents.class);
