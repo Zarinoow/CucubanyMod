@@ -62,7 +62,8 @@ public class DoubleOrientableBlockHelper {
         // On vérifie s'il y a bien la place de poser le bloc du haut (Y+1)
         if (pos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(pos.above()).canBeReplaced(context)) {
             return state
-                    .setValue(HALF, DoubleBlockHalf.LOWER);
+                    .setValue(HALF, DoubleBlockHalf.LOWER)
+                    .setValue(FACING, context.getHorizontalDirection().getOpposite());
         }
         return null; // Annule le placement si le plafond est trop bas
     }

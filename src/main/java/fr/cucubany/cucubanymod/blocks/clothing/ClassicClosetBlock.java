@@ -134,7 +134,7 @@ public class ClassicClosetBlock extends ClosetBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return DoubleOrientableBlockHelper.getStateForPlacement(super.getStateForPlacement(context), context);
+        return DoubleOrientableBlockHelper.getStateForPlacement(this.defaultBlockState(), context);
     }
 
     @Override
