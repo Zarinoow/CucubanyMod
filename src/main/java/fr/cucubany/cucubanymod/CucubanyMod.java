@@ -93,6 +93,7 @@ public class CucubanyMod
     private void clientSetup(final FMLClientSetupEvent event) {
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_BLOCK.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(CucubanyBlocks.VENT_DOOR.get(), RenderType.cutout());
+        BlockEntityRenderers.register(CucubanyBlockEntities.ATM.get(), BlockBenchEntityRenderer::new);
         BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_SIMPLE.get(), BlockBenchEntityRenderer::new);
         BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_DOUBLE.get(), BlockBenchEntityRenderer::new);
         BlockEntityRenderers.register(CucubanyBlockEntities.CLOSET_BIG.get(), BlockBenchEntityRenderer::new);

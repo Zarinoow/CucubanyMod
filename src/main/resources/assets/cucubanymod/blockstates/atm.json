@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "decocraft:atm", "y": 0},
+    "facing=east":  {"model": "decocraft:atm", "y": 90},
+    "facing=south": {"model": "decocraft:atm", "y": 180},
+    "facing=west":  {"model": "decocraft:atm", "y": 270}
+  }
+}

@@ -1,6 +1,7 @@
 package fr.cucubany.cucubanymod.blocks;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.blocks.advanced.AtmBlock;
 import fr.cucubany.cucubanymod.blocks.advanced.VentDoorBlock;
 import fr.cucubany.cucubanymod.items.CucubanyCreativeModeTab;
 import fr.cucubany.cucubanymod.items.CucubanyItems;
@@ -56,7 +57,7 @@ public class CucubanyBlocks {
             CucubanyCreativeModeTab.CUCUBANY_TAB);
 
     public static final RegistryObject<Block> ATM = registerBlock("atm", () ->
-            new Block(BlockBehaviour.Properties
+            new AtmBlock(BlockBehaviour.Properties
                     .of(Material.METAL)
                     .strength(9f)
                     .noOcclusion()),
