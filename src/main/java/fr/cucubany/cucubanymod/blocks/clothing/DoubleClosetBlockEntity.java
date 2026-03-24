@@ -1,8 +1,8 @@
 package fr.cucubany.cucubanymod.blocks.clothing;
 
 import fr.cucubany.cucubanymod.blocks.CucubanyBlockEntities;
-import fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper;
-import fr.cucubany.cucubanymod.blocks.HugeBlockAABBHelper;
+import fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper;
+import fr.cucubany.cucubanymod.blocks.helpers.HugeBlockAABBHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;

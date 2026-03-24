@@ -1,7 +1,7 @@
 package fr.cucubany.cucubanymod.blocks.advanced;
 
 import fr.cucubany.cucubanymod.blocks.DoubleOrientableBlock;
-import fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper;
+import fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -13,7 +13,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import static fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper.HALF;
+import static fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper.HALF;
 
 public class AtmBlock extends DoubleOrientableBlock implements EntityBlock {
 

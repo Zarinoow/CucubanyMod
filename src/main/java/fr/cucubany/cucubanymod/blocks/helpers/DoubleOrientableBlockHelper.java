@@ -1,4 +1,4 @@
-package fr.cucubany.cucubanymod.blocks;
+package fr.cucubany.cucubanymod.blocks.helpers;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**

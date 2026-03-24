@@ -1,5 +1,6 @@
 package fr.cucubany.cucubanymod.blocks;
 
+import fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,8 +16,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 
-import static fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper.FACING;
-import static fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper.HALF;
+import static fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper.FACING;
+import static fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper.HALF;
 
 public abstract class DoubleOrientableBlock extends Block {
 

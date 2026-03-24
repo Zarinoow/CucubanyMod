@@ -1,4 +1,4 @@
-package fr.cucubany.cucubanymod.blocks;
+package fr.cucubany.cucubanymod.blocks.helpers;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -1,8 +1,8 @@
 package fr.cucubany.cucubanymod.blocks.advanced;
 
 import fr.cucubany.cucubanymod.blocks.CucubanyBlockEntities;
-import fr.cucubany.cucubanymod.blocks.DoubleOrientableBlockHelper;
-import fr.cucubany.cucubanymod.blocks.HugeBlockAABBHelper;
+import fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper;
+import fr.cucubany.cucubanymod.blocks.helpers.HugeBlockAABBHelper;
 import fr.cucubany.cucubanymod.blocks.IBBBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
