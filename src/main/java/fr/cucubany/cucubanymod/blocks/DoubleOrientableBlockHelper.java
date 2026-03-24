@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  *
@@ -95,6 +97,31 @@ public class DoubleOrientableBlockHelper {
         return state.getValue(HALF) == DoubleBlockHalf.UPPER
                 ? RenderShape.INVISIBLE
                 : RenderShape.ENTITYBLOCK_ANIMATED;
+    }
+
+    /**
+     * Permet de récupérer la bonne forme de collision selon la direction et la partie du bloc (haut ou bas).
+     * @param shapes Un tableau de 4 formes correspondant aux 4 directions (N, S, W, E)
+     * @return La forme de collision à utiliser pour ce bloc selon sa direction et sa partie (haut ou bas)
+     */
+    public static VoxelShape getShape(VoxelShape[] shapes, BlockState pState) {
+        VoxelShape currentShape;
+
+        // 1. On récupère la bonne forme selon la direction
+        switch (pState.getValue(FACING)) {
+            case SOUTH: currentShape = shapes[1]; break;
+            case WEST:  currentShape = shapes[2];  break;
+            case EAST:  currentShape = shapes[3];  break;
+            default:    currentShape = shapes[0]; break;
+        }
+
+        // 2. Si on est sur le bloc du HAUT, on décale la hitbox de 1 bloc complet vers le bas (Y - 1)
+        if (pState.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            return currentShape.move(0.0D, -1.0D, 0.0D);
+        }
+
+        // Sinon, c'est le bloc du bas, on retourne la forme normale
+        return currentShape;
     }
 
     public static boolean isMainPart(BlockState state) {

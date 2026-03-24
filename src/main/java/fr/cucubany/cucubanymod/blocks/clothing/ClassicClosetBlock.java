@@ -59,8 +59,8 @@ public class ClassicClosetBlock extends ClosetBlock {
      * Index :
      * 0 -> NORTH
      * 1 -> SOUTH
-     * 2 -> EAST
-     * 3 -> WEST
+     * 2 -> WEST
+     * 3 -> EAST
      */
     private static final VoxelShape[] SHAPES = new VoxelShape[]{
             /*
@@ -87,39 +87,22 @@ public class ClassicClosetBlock extends ClosetBlock {
             Shapes.or(
                     Block.box(0, 0, 0, 16, 32, 1),
                     Block.box(0, 0, 15, 16, 32, 16),
-                    Block.box(0, 0, 1, 1, 32, 15),
-                    Block.box(1, 0, 1, 16, 1, 15),
-                    Block.box(1, 31, 1, 16, 32, 15)
+                    Block.box(15, 0, 1, 16, 32, 15),
+                    Block.box(0, 0, 1, 15, 1, 15),
+                    Block.box(0, 31, 1, 15, 32, 15)
             ),
             Shapes.or(
                     Block.box(0, 0, 0, 16, 32, 1),
                     Block.box(0, 0, 15, 16, 32, 16),
-                    Block.box(15, 0, 1, 16, 32, 15),
-                    Block.box(0, 0, 1, 15, 1, 15),
-                    Block.box(0, 31, 1, 15, 32, 15)
+                    Block.box(0, 0, 1, 1, 32, 15),
+                    Block.box(1, 0, 1, 16, 1, 15),
+                    Block.box(1, 31, 1, 16, 32, 15)
             )
     };
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        // 1. On récupère la bonne forme selon la direction
-        Direction facing = pState.getValue(FACING); // Hérité de ClosetBlock
-        VoxelShape currentShape;
-
-        switch (facing) {
-            case SOUTH: currentShape = SHAPES[1]; break;
-            case EAST:  currentShape = SHAPES[2];  break;
-            case WEST:  currentShape = SHAPES[3];  break;
-            default:    currentShape = SHAPES[0]; break;
-        }
-
-        // 2. Si on est sur le bloc du HAUT, on décale la hitbox de 1 bloc complet vers le bas (Y - 1)
-        if (pState.getValue(HALF) == DoubleBlockHalf.UPPER) {
-            return currentShape.move(0.0D, -1.0D, 0.0D);
-        }
-
-        // Sinon, c'est le bloc du bas, on retourne la forme normale
-        return currentShape;
+        return DoubleOrientableBlockHelper.getShape(SHAPES, pState);
     }
 
     /*
