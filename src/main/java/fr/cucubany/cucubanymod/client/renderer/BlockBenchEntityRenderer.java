@@ -27,10 +27,29 @@ import java.util.Random;
 
 public class BlockBenchEntityRenderer<T extends BlockEntity & IBBBlockEntity> implements BlockEntityRenderer<T> {
 
-    private static final RenderType BB_CUTOUT = new RenderStateShard("bb_build", () -> {}, () -> {}) {
+    private static final RenderType BB_CUTOUT_RT = new RenderStateShard("bb_build", () -> {}, () -> {}) {
         RenderType make() {
             return RenderType.create(
                     CucubanyMod.MOD_ID + ":bb_cutout",
+                    DefaultVertexFormat.BLOCK,
+                    VertexFormat.Mode.QUADS,
+                    131072, true, false,
+                    RenderType.CompositeState.builder()
+                            .setShaderState(RENDERTYPE_CUTOUT_SHADER)
+                            .setTextureState(new TextureStateShard(
+                                    TextureAtlas.LOCATION_BLOCKS, false, false))
+                            .setTransparencyState(NO_TRANSPARENCY)
+                            .setCullState(CULL)
+                            .setLightmapState(LIGHTMAP)
+                            .setOverlayState(OVERLAY)
+                            .createCompositeState(true));
+        }
+    }.make();
+
+    private static final RenderType BB_CUTOUT_NOCULL_RT = new RenderStateShard("bb_build", () -> {}, () -> {}) {
+        RenderType make() {
+            return RenderType.create(
+                    CucubanyMod.MOD_ID + ":bb_cutout_nocull",
                     DefaultVertexFormat.BLOCK,
                     VertexFormat.Mode.QUADS,
                     131072, true, false,
@@ -71,8 +90,9 @@ public class BlockBenchEntityRenderer<T extends BlockEntity & IBBBlockEntity> im
         BlockPos renderPos = be.getBlockPos().offset(offset.x, offset.y, offset.z);
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
 
-        ForgeHooksClient.setRenderType(BB_CUTOUT);
-        VertexConsumer consumer = new FixedLightConsumer(buffers.getBuffer(BB_CUTOUT), packedLight);
+        RenderType renderType = be.getBBRenderType() == IBBBlockEntity.BBRenderType.BB_CUTOUT ? BB_CUTOUT_RT : BB_CUTOUT_NOCULL_RT;
+        ForgeHooksClient.setRenderType(renderType);
+        VertexConsumer consumer = new FixedLightConsumer(buffers.getBuffer(renderType), packedLight);
 
         ModelBlockRenderer renderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         renderer.tesselateWithoutAO(
@@ -85,7 +105,7 @@ public class BlockBenchEntityRenderer<T extends BlockEntity & IBBBlockEntity> im
         poseStack.popPose();
 
         if (buffers instanceof MultiBufferSource.BufferSource bufferSource) {
-            bufferSource.endBatch(BB_CUTOUT);
+            bufferSource.endBatch(renderType);
         }
     }
 
