@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:atm"
+          "name": "cucubanymod:atm",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "cucubanymod:atm",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:closet_black"
+          "name": "cucubanymod:closet_black",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "cucubanymod:closet_black",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

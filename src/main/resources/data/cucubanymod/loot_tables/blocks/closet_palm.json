@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:closet_palm"
+          "name": "cucubanymod:closet_palm",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "cucubanymod:closet_palm",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

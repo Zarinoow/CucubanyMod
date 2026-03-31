@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.blocks.helpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.List;
 
 /**
  *
@@ -121,6 +124,25 @@ public class DoubleOrientableBlockHelper {
 
         // Sinon, c'est le bloc du bas, on retourne la forme normale
         return currentShape;
+    }
+
+    public static void playerWillDestroy(Block b, Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide && player.isCreative()) {
+            DoubleBlockHalf half = state.getValue(HALF);
+
+            // On n'agit manuellement que si on casse le HAUT.
+            // Si on casse le bas, le moteur de Minecraft s'occupe de tout sans drop.
+            if (half == DoubleBlockHalf.UPPER) {
+                BlockPos blockBelow = pos.below();
+                BlockState stateBelow = level.getBlockState(blockBelow);
+
+                // On vérifie que le bloc en dessous est bien la partie basse de notre bloc
+                if (stateBelow.is(b) && stateBelow.getValue(HALF) == DoubleBlockHalf.LOWER) {
+                    // On utilise le helper pour supprimer le bas proprement (sans drop)
+                    HugeBlockRemovalHelper.preventCreativeDrop(level, player, List.of(blockBelow));
+                }
+            }
+        }
     }
 
     public static boolean isMainPart(BlockState state) {

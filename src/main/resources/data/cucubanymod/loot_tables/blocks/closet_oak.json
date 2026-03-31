@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:closet_oak"
+          "name": "cucubanymod:closet_oak",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "cucubanymod:closet_oak",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

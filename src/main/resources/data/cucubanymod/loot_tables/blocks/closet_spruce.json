@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cucubanymod:closet_spruce"
+          "name": "cucubanymod:closet_spruce",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "cucubanymod:closet_spruce",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ]
         }
       ],
       "conditions": [

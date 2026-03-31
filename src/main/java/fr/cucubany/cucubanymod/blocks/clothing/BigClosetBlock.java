@@ -1,9 +1,11 @@
 package fr.cucubany.cucubanymod.blocks.clothing;
 
+import fr.cucubany.cucubanymod.blocks.helpers.HugeBlockRemovalHelper;
 import fr.cucubany.cucubanymod.roleplay.skin.custom.SkinPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -22,6 +24,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class BigClosetBlock extends ClosetBlock {
 
@@ -330,6 +334,49 @@ public class BigClosetBlock extends ClosetBlock {
         }
 
         return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
+
+    @Override
+    public void playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
+        if (!pLevel.isClientSide && pPlayer.isCreative()) {
+            boolean isMain = pState.getValue(PART);
+            DoubleBlockHalf half = pState.getValue(HALF);
+            Direction facing = pState.getValue(FACING);
+
+            // 1. Trouver la position absolue du "Pivot" (MAIN + LOWER)
+            BlockPos mainLowerPos = pPos;
+
+            // Si on a cassé un bloc du haut, on descend pour trouver le bas
+            if (half == DoubleBlockHalf.UPPER) {
+                mainLowerPos = mainLowerPos.below();
+            }
+
+            // Si on a cassé la partie OTHER, on se décale vers le MAIN (à droite du joueur)
+            if (!isMain) {
+                mainLowerPos = mainLowerPos.relative(facing.getCounterClockWise());
+            }
+
+            // 2. Calculer les 4 positions occupées par le placard complet
+            Direction sideDir = facing.getClockWise(); // Direction vers la partie OTHER
+
+            List<BlockPos> allParts = List.of(
+                    mainLowerPos,                          // MAIN LOWER
+                    mainLowerPos.above(),                  // MAIN UPPER
+                    mainLowerPos.relative(sideDir),        // OTHER LOWER
+                    mainLowerPos.relative(sideDir).above() // OTHER UPPER
+            );
+
+            // 3. Filtrer pour obtenir uniquement les "autres" parties (et vérifier qu'elles sont bien là)
+            List<BlockPos> others = allParts.stream()
+                    .filter(pos -> !pos.equals(pPos)) // On exclut le bloc qu'on est déjà en train de casser
+                    .filter(pos -> pLevel.getBlockState(pos).is(this)) // Sécurité
+                    .toList();
+
+            // 4. Supprimer silencieusement les autres parties
+            HugeBlockRemovalHelper.preventCreativeDrop(pLevel, pPlayer, others);
+        }
+
+        super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
