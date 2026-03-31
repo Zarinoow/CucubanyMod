@@ -1,6 +1,9 @@
 package fr.cucubany.cucubanymod.network;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.network.bank.ATMSoundPacket;
+import fr.cucubany.cucubanymod.network.bank.BankActionPacket;
+import fr.cucubany.cucubanymod.network.bank.BankSyncPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncPartIdsPacket;
 import fr.cucubany.cucubanymod.network.skin.*;
@@ -39,5 +42,9 @@ public class CucubanyPacketHandler {
         // Wildfire sync packets
         INSTANCE.registerMessage(id++, SyncWildfireToServerPacket.class, SyncWildfireToServerPacket::encode, SyncWildfireToServerPacket::decode, SyncWildfireToServerPacket::handle);
         INSTANCE.registerMessage(id++, SyncWildfireToClientPacket.class, SyncWildfireToClientPacket::encode, SyncWildfireToClientPacket::decode, SyncWildfireToClientPacket::handle);
+        // Bank packets
+        INSTANCE.registerMessage(id++, BankActionPacket.class, BankActionPacket::encode, BankActionPacket::decode, BankActionPacket::handle);
+        INSTANCE.registerMessage(id++, BankSyncPacket.class, BankSyncPacket::encode, BankSyncPacket::decode, BankSyncPacket::handle);
+        INSTANCE.registerMessage(id++, ATMSoundPacket.class, ATMSoundPacket::encode, ATMSoundPacket::decode, ATMSoundPacket::handle);
     }
 }

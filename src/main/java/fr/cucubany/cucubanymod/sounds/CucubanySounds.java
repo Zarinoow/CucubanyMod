@@ -25,6 +25,7 @@ public class CucubanySounds {
      */
     public static final RegistryObject<SoundEvent> VENT_OPEN = registerSoundEvent("vent_open");
     public static final RegistryObject<SoundEvent> JOINT_MUSIC = registerSoundEvent("joint_music");
+    public static final RegistryObject<SoundEvent> ATM_BIP = registerSoundEvent("atm_bip");
 
     /*
      * NPC Dialogues

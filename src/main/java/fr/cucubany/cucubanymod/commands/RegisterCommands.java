@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.commands;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+
 public class RegisterCommands {
 
     @SubscribeEvent
@@ -10,6 +11,7 @@ public class RegisterCommands {
         ResetIdentityCommand.register(event.getServer().getCommands().getDispatcher());
         GetIdentityCommand.register(event.getServer().getCommands().getDispatcher());
         SkillCommand.register(event.getServer().getCommands().getDispatcher());
+        BankCommand.register(event.getServer().getCommands().getDispatcher());
     }
 
 }

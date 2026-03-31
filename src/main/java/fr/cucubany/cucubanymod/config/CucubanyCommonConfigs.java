@@ -19,6 +19,10 @@ public class CucubanyCommonConfigs {
     public static final ForgeConfigSpec.DoubleValue BREAST_CLEAVAGE_MIN;
     public static final ForgeConfigSpec.DoubleValue BREAST_CLEAVAGE_MAX;
 
+    // --- Banque ---
+    public static final ForgeConfigSpec.ConfigValue<String> BANK_NAME;
+    public static final ForgeConfigSpec.ConfigValue<String> BANK_CURRENCY;
+
     // --- Valeurs fixes (cachées, communes à tous) ---
     public static final ForgeConfigSpec.DoubleValue BREAST_BOUNCE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue BREAST_FLOPPY_MULTIPLIER;
@@ -30,6 +34,17 @@ public class CucubanyCommonConfigs {
 
     static {
         COMMON_BUILDER.push("Common configs for Cucubany Mod");
+
+        COMMON_BUILDER.comment("Banque").push("bank");
+
+        BANK_NAME = COMMON_BUILDER
+                .comment("Nom de la banque affiché dans l'ATM et sur les relevés")
+                .define("bankName", "Banque de Cucubany");
+        BANK_CURRENCY = COMMON_BUILDER
+                .comment("Symbole de la monnaie (ex : €, $, £)")
+                .define("bankCurrency", "€");
+
+        COMMON_BUILDER.pop();
 
         COMMON_BUILDER.comment("Morphologie - Limites des curseurs exposés au joueur").push("breast_limits");
 

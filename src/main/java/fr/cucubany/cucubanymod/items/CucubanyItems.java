@@ -2,6 +2,7 @@ package fr.cucubany.cucubanymod.items;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.armor.HazmatSuit;
+import fr.cucubany.cucubanymod.items.advanced.BankStatementItem;
 import fr.cucubany.cucubanymod.items.advanced.IdentityCardItem;
 import fr.cucubany.cucubanymod.items.advanced.JointItem;
 import net.minecraft.world.item.Item;
@@ -24,6 +25,10 @@ public class CucubanyItems {
     /*
      * Advanced items
      */
+    public static final RegistryObject<Item> BANK_STATEMENT = ITEMS.register("bank_statement", () -> new BankStatementItem(new Item.Properties()
+            .tab(CucubanyCreativeModeTab.CUCUBANY_TAB)
+            .stacksTo(1)));
+
     public static final RegistryObject<Item> IDENTITY_CARD = ITEMS.register("id_card", () -> new IdentityCardItem(new Item.Properties()
             .tab(CucubanyCreativeModeTab.CUCUBANY_TAB)
             .stacksTo(1)));

@@ -11,6 +11,12 @@
       "cucubanymod:joint_use"
     ]
   },
+  "atm_bip": {
+    "subtitle": "sound.cucubanymod.atm_bip",
+    "sounds": [
+      "cucubanymod:atm_bip"
+    ]
+  },
   "salut": {
     "subtitle": "sound.cucubanymod.npcs.emily.salut",
     "sounds": [

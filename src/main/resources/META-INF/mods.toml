@@ -87,3 +87,15 @@ Nous sommes les meilleurs, faites nous confiance.
     versionRange="[2.9.0,)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.cucubanymod]]
+modId="decocraft"
+mandatory=true
+versionRange="[3.0.4,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.cucubanymod]]
+modId="coinsje"
+mandatory=true
+versionRange="[7.0.1,)"
+ordering="NONE"
+side="BOTH"
