@@ -39,7 +39,7 @@ public class CucubanyCommonConfigs {
 
         BANK_NAME = COMMON_BUILDER
                 .comment("Nom de la banque affiché dans l'ATM et sur les relevés")
-                .define("bankName", "Banque de Cucubany");
+                .define("bankName", "Cucubany");
         BANK_CURRENCY = COMMON_BUILDER
                 .comment("Symbole de la monnaie (ex : €, $, £)")
                 .define("bankCurrency", "€");
