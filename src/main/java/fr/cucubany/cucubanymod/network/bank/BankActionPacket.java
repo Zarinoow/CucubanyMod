@@ -6,10 +6,10 @@ import fr.cucubany.cucubanymod.bank.BankTransaction;
 import fr.cucubany.cucubanymod.bank.CoinValue;
 import fr.cucubany.cucubanymod.items.advanced.BankStatementItem;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
+import fr.cucubany.cucubanymod.network.bank.BankToastPacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
 import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -96,10 +96,14 @@ public record BankActionPacket(Action action, int pin, UUID targetUUID, long amo
                     // Notification au destinataire s'il est connecté
                     ServerPlayer target = sender.getServer().getPlayerList().getPlayer(targetUUID);
                     if (target != null) {
-                        target.sendMessage(new TextComponent(
-                            "§a[Banque] §eVirement reçu : §f" + BankStatementItem.formatAmount(amount) +
-                            " §ede §f" + fromName + "§e."
-                        ), new UUID(0, 0));
+                        // Toast de notification
+                        CucubanyPacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> target),
+                            new BankToastPacket(BankStatementItem.formatAmount(amount), fromName));
+                        // Mise à jour du solde si l'ATM est ouvert
+                        BankAccount targetAccount = bank.getOrCreate(targetUUID);
+                        CucubanyPacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> target),
+                            new BankSyncPacket(BankSyncPacket.Status.BALANCE_UPDATE, targetAccount.getBalance(),
+                                targetAccount.isPinSet(), List.of(), List.of(), ""));
                     }
 
                     sendFull(sender, bank, account, BankSyncPacket.Status.TRANSFER_OK,
@@ -111,9 +115,10 @@ public record BankActionPacket(Action action, int pin, UUID targetUUID, long amo
                         sendStatus(sender, BankSyncPacket.Status.PIN_INVALID, "PIN incorrect.", account);
                         return;
                     }
-                    ItemStack statement = BankStatementItem.create(sender.getUUID(), getPlayerName(sender), account);
+                    long fromDate = packet.amount(); // 0 = all history
+                    ItemStack statement = BankStatementItem.create(sender.getUUID(), getPlayerName(sender), account, fromDate);
                     if (!sender.addItem(statement)) sender.drop(statement, false);
-                    sendStatus(sender, BankSyncPacket.Status.STATEMENT_OK, "Relevé généré dans votre inventaire.", account);
+                    sendStatus(sender, BankSyncPacket.Status.STATEMENT_OK, "screen.cucubanymod.atm.statement.generated", account);
                 }
 
                 case DEPOSIT -> {

@@ -38,7 +38,7 @@ public class BankStatementItem extends Item {
 
     // ── Création d'un relevé ──────────────────────────────────────────────────
 
-    public static ItemStack create(UUID ownerUUID, String ownerName, BankAccount account) {
+    public static ItemStack create(UUID ownerUUID, String ownerName, BankAccount account, long fromDate) {
         ItemStack stack = new ItemStack(fr.cucubany.cucubanymod.items.CucubanyItems.BANK_STATEMENT.get());
         CompoundTag tag = new CompoundTag();
         tag.putUUID(TAG_OWNER_UUID, ownerUUID);
@@ -47,7 +47,9 @@ public class BankStatementItem extends Item {
         tag.putLong(TAG_GENERATED, System.currentTimeMillis());
 
         ListTag txList = new ListTag();
-        for (BankTransaction tx : account.getHistory()) txList.add(tx.toNBT());
+        for (BankTransaction tx : account.getHistory()) {
+            if (fromDate == 0 || tx.timestamp() >= fromDate) txList.add(tx.toNBT());
+        }
         tag.put(TAG_TRANSACTIONS, txList);
 
         stack.setTag(tag);

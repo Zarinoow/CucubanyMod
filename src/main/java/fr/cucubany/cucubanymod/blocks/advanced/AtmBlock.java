@@ -1,11 +1,11 @@
 package fr.cucubany.cucubanymod.blocks.advanced;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import fr.cucubany.cucubanymod.blocks.DoubleOrientableBlock;
 import fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper;
-import fr.cucubany.cucubanymod.client.screen.ATMScreen;
-import net.minecraft.client.Minecraft;
+import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
+import fr.cucubany.cucubanymod.network.bank.OpenATMScreenPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import static fr.cucubany.cucubanymod.blocks.helpers.DoubleOrientableBlockHelper.HALF;
@@ -57,11 +58,15 @@ public class AtmBlock extends DoubleOrientableBlock implements EntityBlock {
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if(!pHand.equals(InteractionHand.MAIN_HAND)) return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
-        // TEMP TEMP TEMP TEMP //
-        if(!pLevel.isClientSide) return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
-        Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new ATMScreen(pPos));
-        return InteractionResult.SUCCESS;
+        if (pHand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (pLevel.isClientSide) return InteractionResult.SUCCESS;
+
+        // Normalise la position sur la moitié basse du bloc double
+        BlockPos targetPos = pState.getValue(HALF) == DoubleBlockHalf.UPPER ? pPos.below() : pPos;
+        CucubanyPacketHandler.INSTANCE.send(
+            PacketDistributor.PLAYER.with(() -> (ServerPlayer) pPlayer),
+            new OpenATMScreenPacket(targetPos)
+        );
+        return InteractionResult.CONSUME;
     }
 }

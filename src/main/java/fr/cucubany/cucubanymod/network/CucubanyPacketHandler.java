@@ -4,6 +4,8 @@ import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.network.bank.ATMSoundPacket;
 import fr.cucubany.cucubanymod.network.bank.BankActionPacket;
 import fr.cucubany.cucubanymod.network.bank.BankSyncPacket;
+import fr.cucubany.cucubanymod.network.bank.BankToastPacket;
+import fr.cucubany.cucubanymod.network.bank.OpenATMScreenPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncPartIdsPacket;
 import fr.cucubany.cucubanymod.network.skin.*;
@@ -46,5 +48,7 @@ public class CucubanyPacketHandler {
         INSTANCE.registerMessage(id++, BankActionPacket.class, BankActionPacket::encode, BankActionPacket::decode, BankActionPacket::handle);
         INSTANCE.registerMessage(id++, BankSyncPacket.class, BankSyncPacket::encode, BankSyncPacket::decode, BankSyncPacket::handle);
         INSTANCE.registerMessage(id++, ATMSoundPacket.class, ATMSoundPacket::encode, ATMSoundPacket::decode, ATMSoundPacket::handle);
+        INSTANCE.registerMessage(id++, BankToastPacket.class, BankToastPacket::encode, BankToastPacket::decode, BankToastPacket::handle);
+        INSTANCE.registerMessage(id++, OpenATMScreenPacket.class, OpenATMScreenPacket::encode, OpenATMScreenPacket::decode, OpenATMScreenPacket::handle);
     }
 }

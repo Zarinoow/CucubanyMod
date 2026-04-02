@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class BankSyncPacket {
 
     public enum Status {
-        OK, ERROR, PIN_OK, PIN_INVALID, INSUFFICIENT_FUNDS, TRANSFER_OK, STATEMENT_OK, WITHDRAW_OK, DEPOSIT_OK
+        OK, ERROR, PIN_OK, PIN_INVALID, INSUFFICIENT_FUNDS, TRANSFER_OK, STATEMENT_OK, WITHDRAW_OK, DEPOSIT_OK, BALANCE_UPDATE
     }
 
     public record PlayerEntry(UUID uuid, String name) {}

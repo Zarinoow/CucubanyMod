@@ -19,8 +19,15 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ATMScreen extends Screen {
@@ -49,7 +56,8 @@ public class ATMScreen extends Screen {
         MENU, BALANCE, TRANSFER_LIST, TRANSFER_AMOUNT, TRANSFER_CONFIRM,
         TRANSFER_DONE, HISTORY, MESSAGE,
         WITHDRAW_AMOUNT, WITHDRAW_PREVIEW, WITHDRAW_DONE,
-        DEPOSIT_PREVIEW, DEPOSIT_DONE
+        DEPOSIT_PREVIEW, DEPOSIT_DONE,
+        STATEMENT_CONFIRM
     }
 
     private State state = State.LOADING;
@@ -76,6 +84,13 @@ public class ATMScreen extends Screen {
 
     private String feedbackMessage = "";
     private boolean lastActionOk = false;
+
+    // ── Données Relevé ────────────────────────────────────────────────────────
+    private record StmtHour(String label, long fromMs) {}
+    private record StmtDay(String label, List<StmtHour> hours) {}
+    private List<StmtDay> stmtDays = new ArrayList<>();
+    private int stmtDayIdx  = 0;
+    private int stmtHourIdx = 0;
 
     // ── Données Retrait / Dépôt ───────────────────────────────────────────────
     private java.util.List<CoinValue.CoinStack> withdrawBreakdown = null;
@@ -119,8 +134,9 @@ public class ATMScreen extends Screen {
             }
         }
 
-        // Requête initiale au serveur
-        sendAction(BankActionPacket.Action.GET_DATA, -1, null, 0);
+        // Requête initiale au serveur (ignorée si l'écran est redimensionné)
+        if (state == State.LOADING)
+            sendAction(BankActionPacket.Action.GET_DATA, -1, null, 0);
     }
 
     // ── Réponse serveur ───────────────────────────────────────────────────────
@@ -159,7 +175,12 @@ public class ATMScreen extends Screen {
 
             case TRANSFER_OK -> { lastActionOk = true; state = State.TRANSFER_DONE; }
 
-            case STATEMENT_OK -> state = State.MESSAGE;
+            case STATEMENT_OK -> {
+                feedbackMessage = I18n.get("screen.cucubanymod.atm.statement.generated");
+                state = State.MESSAGE;
+            }
+
+            case BALANCE_UPDATE -> balance = packet.getBalance();
 
             case WITHDRAW_OK -> state = State.WITHDRAW_DONE;
 
@@ -277,6 +298,19 @@ public class ATMScreen extends Screen {
                 rightLabels[1] = btnDown;
                 rightLabels[2] = btnBack;
             }
+            case STATEMENT_CONFIRM -> {
+                if (!stmtDays.isEmpty()) {
+                    leftLabels[0]  = I18n.get("screen.cucubanymod.atm.statement.btn.prev_date");
+                    rightLabels[0] = I18n.get("screen.cucubanymod.atm.statement.btn.next_date");
+                    StmtDay day = stmtDays.get(stmtDayIdx);
+                    if (day.hours().size() > 1) {
+                        leftLabels[1]  = I18n.get("screen.cucubanymod.atm.statement.btn.prev_hour");
+                        rightLabels[1] = I18n.get("screen.cucubanymod.atm.statement.btn.next_hour");
+                    }
+                    leftLabels[2] = I18n.get("screen.cucubanymod.atm.btn.confirm");
+                }
+                rightLabels[2] = btnBack;
+            }
             case PIN_SETUP, PIN_SETUP_CONFIRM, PIN_ENTRY ->
                 rightLabels[3] = I18n.get("screen.cucubanymod.atm.btn.delete");
         }
@@ -379,7 +413,9 @@ public class ATMScreen extends Screen {
 
             case HISTORY -> renderHistory(ps, sx, contentY, cx, sw);
 
-            case MESSAGE -> drawCenteredString(ps, this.font, feedbackMessage, cx, contentY + 30, t.primary);
+            case MESSAGE -> renderWrappedCentered(ps, feedbackMessage, cx, contentY + 26, sw - 20, t.primary);
+
+            case STATEMENT_CONFIRM -> renderStatementConfirm(ps, sx, contentY, cx, sw, t);
 
             case WITHDRAW_AMOUNT -> {
                 drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.withdraw.title"), cx, contentY, t.accent);
@@ -479,7 +515,7 @@ public class ATMScreen extends Screen {
     }
 
     private void renderWithdrawPreview(PoseStack ps, int sx, int contentY, int cx, int sw, ATMTheme t) {
-        drawCenteredString(ps, this.font, "RETRAIT - " + BankStatementItem.formatAmount(parseLong(amountInput)), cx, contentY, t.accent);
+        drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.withdraw.title") + " - " + BankStatementItem.formatAmount(parseLong(amountInput)), cx, contentY, t.accent);
         fill(ps, sx + 4, contentY + 11, sx + sw - 4, contentY + 12, t.separator);
         if (withdrawBreakdown == null) {
             drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.withdraw.impossible"), cx, contentY + 30, t.debit);
@@ -495,7 +531,9 @@ public class ATMScreen extends Screen {
             int maxPx = (int) ((contentRight - contentLeft) / scale);
             for (int i = 0; i < withdrawBreakdown.size(); i++) {
                 CoinValue.CoinStack cs = withdrawBreakdown.get(i);
-                String line = cs.count() + "x " + cs.coin().getDisplayName();
+                long coinVal = (long) cs.count() * cs.coin().getValue();
+                String line = cs.count() + "x " + I18n.get(cs.coin().getLangKey())
+                    + " (" + BankStatementItem.formatAmount(coinVal) + ")";
                 ps.pushPose();
                 ps.translate(contentLeft, contentY + 28 + i * 10, 0);
                 ps.scale(scale, scale, 1f);
@@ -506,7 +544,7 @@ public class ATMScreen extends Screen {
     }
 
     private void renderDepositPreview(PoseStack ps, int sx, int contentY, int cx, int sw, ATMTheme t) {
-        drawCenteredString(ps, this.font, "DÉPÔT", cx, contentY, t.accent);
+        drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.deposit.title"), cx, contentY, t.accent);
         fill(ps, sx + 4, contentY + 11, sx + sw - 4, contentY + 12, t.separator);
         if (depositPreviewCoins.isEmpty()) {
             drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.deposit.empty"), cx, contentY + 30, t.muted);
@@ -520,7 +558,7 @@ public class ATMScreen extends Screen {
             for (int i = 0; i < maxRows; i++) {
                 CoinValue.CoinCount cc = depositPreviewCoins.get(i);
                 long coinVal = cc.count() * cc.coin().getValue();
-                String line = cc.count() + "x " + cc.coin().getDisplayName()
+                String line = cc.count() + "x " + I18n.get(cc.coin().getLangKey())
                     + " (" + BankStatementItem.formatAmount(coinVal) + ")";
                 ps.pushPose();
                 ps.translate(contentLeft, contentY + 16 + i * 9, 0);
@@ -531,6 +569,70 @@ public class ATMScreen extends Screen {
             fill(ps, sx + 4, contentY + 88, sx + sw - 4, contentY + 89, t.separator);
             drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.deposit.total", BankStatementItem.formatAmount(depositPreviewTotal)), cx, contentY + 92, t.credit);
         }
+    }
+
+    /** Construit la liste des jours/heures disponibles depuis l'historique. */
+    private void buildStmtDays() {
+        stmtDays.clear();
+        stmtDayIdx  = 0;
+        stmtHourIdx = 0;
+        if (history.isEmpty()) return;
+
+        DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("dd/MM");
+        // Map jour → liste de timestamps (une entrée par transaction)
+        Map<LocalDate, List<Long>> dayTxMap = new LinkedHashMap<>();
+        for (BankTransaction tx : history) {
+            LocalDate date = LocalDateTime.ofInstant(Instant.ofEpochMilli(tx.timestamp()), ZoneId.systemDefault()).toLocalDate();
+            dayTxMap.computeIfAbsent(date, k -> new ArrayList<>()).add(tx.timestamp());
+        }
+        // Tri chronologique des jours
+        List<LocalDate> sortedDays = new ArrayList<>(dayTxMap.keySet());
+        sortedDays.sort(LocalDate::compareTo);
+
+        for (LocalDate date : sortedDays) {
+            List<Long> times = new ArrayList<>(dayTxMap.get(date));
+            times.sort(Long::compareTo);
+            List<StmtHour> hours = new ArrayList<>();
+            long lastMinute = -1;
+            for (long ts : times) {
+                long minute = ts / 60_000;
+                if (minute == lastMinute) continue; // dédoublonnage à la minute
+                lastMinute = minute;
+                LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts), ZoneId.systemDefault());
+                hours.add(new StmtHour(String.format("%02dh%02d", dt.getHour(), dt.getMinute()), ts));
+            }
+            stmtDays.add(new StmtDay(date.format(dayFmt), hours));
+        }
+    }
+
+    private void renderStatementConfirm(PoseStack ps, int sx, int contentY, int cx, int sw, ATMTheme t) {
+        drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.statement.confirm.title"), cx, contentY + 4, t.accent);
+        fill(ps, sx + 4, contentY + 14, sx + sw - 4, contentY + 15, t.separator);
+
+        if (stmtDays.isEmpty()) {
+            drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.history.empty"), cx, contentY + 35, t.muted);
+            return;
+        }
+
+        StmtDay day  = stmtDays.get(stmtDayIdx);
+        StmtHour hour = day.hours().get(stmtHourIdx);
+
+        // "À partir de :"
+        drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.statement.confirm.from"), cx, contentY + 22, t.secondary);
+
+        // Date sélectionnée avec indicateurs de navigation
+        String dateNav = (stmtDayIdx > 0 ? "◄ " : "  ") + day.label() + (stmtDayIdx < stmtDays.size() - 1 ? " ►" : "  ");
+        drawCenteredString(ps, this.font, dateNav, cx, contentY + 36, t.highlight);
+
+        // Heure sélectionnée (toujours affichée)
+        String hourNav = (stmtHourIdx > 0 ? "◄ " : "  ") + hour.label() + (stmtHourIdx < day.hours().size() - 1 ? " ►" : "  ");
+        drawCenteredString(ps, this.font, hourNav, cx, contentY + 52, day.hours().size() > 1 ? t.highlight : t.secondary);
+
+        // Nombre de transactions incluses (centré en bas, hors zone boutons)
+        long fromMs = hour.fromMs();
+        int count = (int) history.stream().filter(tx -> tx.timestamp() >= fromMs).count();
+        fill(ps, sx + 4, contentY + 90, sx + sw - 4, contentY + 91, t.separator);
+        drawCenteredString(ps, this.font, I18n.get("screen.cucubanymod.atm.statement.confirm.count", count), cx, contentY + 96, t.primary);
     }
 
     private String clipText(String text, int maxWidthPx) {
@@ -582,7 +684,7 @@ public class ATMScreen extends Screen {
                     case 0 -> state = State.BALANCE;
                     case 1 -> { playerScroll = 0; selectedPlayer = 0; state = State.TRANSFER_LIST; }
                     case 2 -> { historyScroll = 0; state = State.HISTORY; }
-                    case 3 -> sendAction(BankActionPacket.Action.GET_STATEMENT, cachedPin, null, 0);
+                    case 3 -> { buildStmtDays(); state = State.STATEMENT_CONFIRM; }
                     case 4 -> { amountInput.setLength(0); withdrawBreakdown = null; state = State.WITHDRAW_AMOUNT; }
                     case 5 -> {
                         var player = Minecraft.getInstance().player;
@@ -625,14 +727,37 @@ public class ATMScreen extends Screen {
                     case 6 -> state = State.MENU;
                 }
             }
+            case STATEMENT_CONFIRM -> {
+                if (stmtDays.isEmpty()) { if (index == 6) state = State.MENU; break; }
+                StmtDay day = stmtDays.get(stmtDayIdx);
+                switch (index) {
+                    case 0 -> { // date précédente
+                        if (stmtDayIdx > 0) { stmtDayIdx--; stmtHourIdx = 0; }
+                    }
+                    case 4 -> { // date suivante
+                        if (stmtDayIdx < stmtDays.size() - 1) { stmtDayIdx++; stmtHourIdx = 0; }
+                    }
+                    case 1 -> { // heure précédente
+                        if (stmtHourIdx > 0) stmtHourIdx--;
+                    }
+                    case 5 -> { // heure suivante
+                        if (stmtHourIdx < day.hours().size() - 1) stmtHourIdx++;
+                    }
+                    case 2 -> { // confirmer
+                        long fromMs = stmtDays.get(stmtDayIdx).hours().get(stmtHourIdx).fromMs();
+                        sendAction(BankActionPacket.Action.GET_STATEMENT, cachedPin, null, fromMs);
+                    }
+                    case 6 -> state = State.MENU;
+                }
+            }
             case WITHDRAW_AMOUNT -> {
                 switch (index) {
-                    case 0 -> { amountInput.setLength(0); amountInput.append("100"); }
-                    case 1 -> { amountInput.setLength(0); amountInput.append("500"); }
-                    case 2 -> { amountInput.setLength(0); amountInput.append("1000"); }
-                    case 3 -> { amountInput.setLength(0); amountInput.append("5000"); }
-                    case 4 -> { amountInput.setLength(0); amountInput.append("10000"); }
-                    case 5 -> { amountInput.setLength(0); amountInput.append("50000"); }
+                    case 0 -> setWithdrawAndPreview("100");
+                    case 1 -> setWithdrawAndPreview("500");
+                    case 2 -> setWithdrawAndPreview("1000");
+                    case 3 -> setWithdrawAndPreview("5000");
+                    case 4 -> setWithdrawAndPreview("10000");
+                    case 5 -> setWithdrawAndPreview("50000");
                     case 6 -> state = State.MENU;
                     case 7 -> { if (!amountInput.isEmpty()) amountInput.deleteCharAt(amountInput.length() - 1); }
                 }
@@ -739,6 +864,13 @@ public class ATMScreen extends Screen {
         sendAction(BankActionPacket.Action.TRANSFER, cachedPin, targetUUID, amount);
     }
 
+    private void setWithdrawAndPreview(String value) {
+        amountInput.setLength(0);
+        amountInput.append(value);
+        withdrawBreakdown = CoinValue.breakdown(parseLong(amountInput));
+        state = State.WITHDRAW_PREVIEW;
+    }
+
     private void confirmWithdraw() {
         long amount = parseLong(amountInput);
         if (amount <= 0 || withdrawBreakdown == null) return;
@@ -764,7 +896,7 @@ public class ATMScreen extends Screen {
         catch (NumberFormatException e) { return 0; }
     }
 
-    private void renderWrapped(PoseStack ps, String text, int x, int y, int maxWidth, int color) {
+    private List<String> wrapText(String text, int maxWidth) {
         List<String> lines = new ArrayList<>();
         String[] words = text.split(" ");
         StringBuilder line = new StringBuilder();
@@ -778,8 +910,19 @@ public class ATMScreen extends Screen {
             }
         }
         if (!line.isEmpty()) lines.add(line.toString().trim());
+        return lines;
+    }
+
+    private void renderWrapped(PoseStack ps, String text, int x, int y, int maxWidth, int color) {
+        List<String> lines = wrapText(text, maxWidth);
         for (int i = 0; i < lines.size(); i++)
             this.font.draw(ps, lines.get(i), x, y + i * 10, color);
+    }
+
+    private void renderWrappedCentered(PoseStack ps, String text, int cx, int y, int maxWidth, int color) {
+        List<String> lines = wrapText(text, maxWidth);
+        for (int i = 0; i < lines.size(); i++)
+            drawCenteredString(ps, this.font, lines.get(i), cx, y + i * 10, color);
     }
 
     @Override

@@ -12,29 +12,32 @@ import java.util.List;
 /** Dénominations de pièces du mod Coinsje, du plus bas au plus élevé. */
 public enum CoinValue {
 
-    COPPER_COIN      ("coinsje:copper_coin",       1,      "Pièce Cuivre"),
-    COPPER_COIN_PILE ("coinsje:copper_coin_pile",  9,      "Pile Cuivre"),
-    IRON_COIN        ("coinsje:iron_coin",         10,     "Pièce Fer"),
-    IRON_COIN_PILE   ("coinsje:iron_coin_pile",    90,     "Pile Fer"),
-    GOLD_COIN        ("coinsje:gold_coin",         100,    "Pièce Or"),
-    GOLD_COIN_PILE   ("coinsje:gold_coin_pile",    900,    "Pile Or"),
-    DIAMOND_COIN     ("coinsje:diamond_coin",      1000,   "Pièce Diamant"),
-    DIAMOND_COIN_PILE("coinsje:diamond_coin_pile", 9000,   "Pile Diamant"),
-    NETHERITE_COIN   ("coinsje:netherite_coin",    10000,  "Pièce Nether"),
-    NETHERITE_COIN_PILE("coinsje:netherite_coin_pile", 90000, "Pile Nether");
+    COPPER_COIN      ("coinsje:copper_coin",       1,      "Pièce Cuivre",   "bank.cucubanymod.coin.copper_coin"),
+    COPPER_COIN_PILE ("coinsje:copper_coin_pile",  9,      "Pile Cuivre",    "bank.cucubanymod.coin.copper_pile"),
+    IRON_COIN        ("coinsje:iron_coin",         10,     "Pièce Fer",      "bank.cucubanymod.coin.iron_coin"),
+    IRON_COIN_PILE   ("coinsje:iron_coin_pile",    90,     "Pile Fer",       "bank.cucubanymod.coin.iron_pile"),
+    GOLD_COIN        ("coinsje:gold_coin",         100,    "Pièce Or",       "bank.cucubanymod.coin.gold_coin"),
+    GOLD_COIN_PILE   ("coinsje:gold_coin_pile",    900,    "Pile Or",        "bank.cucubanymod.coin.gold_pile"),
+    DIAMOND_COIN     ("coinsje:diamond_coin",      1000,   "Pièce Diamant",  "bank.cucubanymod.coin.diamond_coin"),
+    DIAMOND_COIN_PILE("coinsje:diamond_coin_pile", 9000,   "Pile Diamant",   "bank.cucubanymod.coin.diamond_pile"),
+    NETHERITE_COIN   ("coinsje:netherite_coin",    10000,  "Pièce Nether",   "bank.cucubanymod.coin.netherite_coin"),
+    NETHERITE_COIN_PILE("coinsje:netherite_coin_pile", 90000, "Pile Nether", "bank.cucubanymod.coin.netherite_pile");
 
     private final String id;
     private final long   value;
     private final String displayName;
+    private final String langKey;
 
-    CoinValue(String id, long value, String displayName) {
+    CoinValue(String id, long value, String displayName, String langKey) {
         this.id          = id;
         this.value       = value;
         this.displayName = displayName;
+        this.langKey     = langKey;
     }
 
     public long   getValue()       { return value; }
     public String getDisplayName() { return displayName; }
+    public String getLangKey()     { return langKey; }
 
     /** Retourne l'item associé, ou null si le mod Coinsje n'est pas chargé. */
     @Nullable

@@ -35,6 +35,12 @@ public class BankManager extends SavedData {
         return accounts.get(uuid);
     }
 
+    /** Supprime le compte bancaire d'un joueur (reset CK). */
+    public void resetAccount(UUID uuid) {
+        accounts.remove(uuid);
+        setDirty();
+    }
+
     // ── Virement ─────────────────────────────────────────────────────────────
 
     /**

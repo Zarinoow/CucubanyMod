@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import fr.cucubany.cucubanymod.bank.BankManager;
 import fr.cucubany.cucubanymod.capabilities.IIdentityCapability;
 import fr.cucubany.cucubanymod.capabilities.IdentityCapabilityProvider;
 import fr.cucubany.cucubanymod.roleplay.IdentityProvider;
@@ -40,7 +41,7 @@ public class ResetIdentityCommand {
 
     private static void resetIdentity(ServerPlayer player) {
         IdentityProvider.setIdentity(player, null);
-
+        BankManager.get(player.getServer()).resetAccount(player.getUUID());
         // Disconnect the player to apply the changes
         player.connection.disconnect(new TranslatableComponent("message.cucubanymod.identity.reset"));
     }
