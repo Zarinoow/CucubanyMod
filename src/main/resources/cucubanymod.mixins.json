@@ -14,7 +14,8 @@
     "AbstractClientPlayerMixin",
     "PlayerInfoMixin",
     "GameRendererMixin",
-    "EntityRenderDispatcherMixin"
+    "EntityRenderDispatcherMixin",
+    "InventoryScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
