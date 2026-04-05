@@ -6,6 +6,7 @@
   "refmap": "cucubanymod.refmap.json",
   "target": "@env(DEFAULT)",
   "mixins": [
+    "InventoryMenuMixin",
     "PlayerMixin",
     "ProjectileUtilMixin",
     "ServerboundInteractPacketMixin"

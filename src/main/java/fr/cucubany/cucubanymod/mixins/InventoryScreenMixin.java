@@ -3,6 +3,7 @@ package fr.cucubany.cucubanymod.mixins;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.cucubany.cucubanymod.CucubanyMod;
+import fr.cucubany.cucubanymod.wallet.WalletState;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -25,33 +26,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends AbstractContainerScreen<InventoryMenu> {
 
-    // ── Champs shadowed de InventoryScreen ────────────────────────────────────
     @Shadow @Final private RecipeBookComponent recipeBookComponent;
     @Shadow private boolean widthTooNarrow;
 
-    // ── Texture et dimensions du portefeuille ─────────────────────────────────
     @Unique private static final ResourceLocation WALLET_TEXTURE =
             new ResourceLocation(CucubanyMod.MOD_ID, "textures/gui/wallet.png");
     @Unique private static final int WALLET_W = 178;
     @Unique private static final int WALLET_H = 168;
-
-    /**
-     * État persistant entre les ouvertures/fermetures de l'inventaire,
-     * comme le livre de recettes qui mémorise s'il était ouvert.
-     */
-    @Unique private static boolean walletVisible = false;
+    /** Premier index de slot wallet dans le menu (46 slots vanilla avant). */
+    @Unique private static final int WALLET_FIRST_SLOT = 46;
 
     @Unique private ImageButton walletButton;
     @Unique private ImageButton recipeBookButton;
-
-    /**
-     * Vrai quand le bouton portefeuille vient de gérer le clic lui-même,
-     * pour éviter que l'injection mouseClicked RETURN ne traite le même événement.
-     */
     @Unique private boolean walletHandled = false;
     @Unique private boolean cucubanymod_wasRecipeBookVisible = false;
 
-    // ── Constructeur fictif requis par le compilateur ─────────────────────────
     protected InventoryScreenMixin(InventoryMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
     }
@@ -60,7 +49,6 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Inject(method = "init", at = @At("RETURN"))
     private void initWallet(CallbackInfo ci) {
-        // Retrouver le bouton du livre de recettes (premier ImageButton ajouté par vanilla)
         recipeBookButton = null;
         for (GuiEventListener listener : children()) {
             if (listener instanceof ImageButton btn) {
@@ -69,8 +57,6 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             }
         }
 
-        // Bouton portefeuille à droite du bouton livre de recettes (même hauteur, même taille)
-        // Livre de recettes : leftPos+104, h/2-22, 20×18 → portefeuille : leftPos+126, h/2-22, 20×18
         walletButton = new ImageButton(
                 this.leftPos + 126, this.height / 2 - 22, 20, 18,
                 74, 222, 18, WALLET_TEXTURE,
@@ -78,7 +64,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
                     if (recipeBookComponent.isVisible()) {
                         recipeBookComponent.toggleVisibility();
                     }
-                    walletVisible = !walletVisible;
+                    WalletState.walletOpen = !WalletState.walletOpen;
                     walletHandled = true;
                     this.leftPos = cucubanymod_updateScreenPosition();
                     cucubanymod_repositionButtons();
@@ -86,12 +72,11 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         );
         this.addRenderableWidget(walletButton);
 
-        // Appliquer le bon leftPos (redimensionnement alors que le portefeuille était ouvert)
         this.leftPos = cucubanymod_updateScreenPosition();
         cucubanymod_repositionButtons();
     }
 
-    // ── Synchronisation lors du toggle du livre de recettes ───────────────────
+    // ── Toggle livre de recettes ──────────────────────────────────────────────
 
     @Inject(method = "mouseClicked", at = @At("HEAD"))
     private void beforeMouseClicked(double mouseX, double mouseY, int btn,
@@ -100,22 +85,14 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         walletHandled = false;
     }
 
-    /**
-     * Appelé après chaque mouseClicked.
-     * Si le livre de recettes vient d'être togglé par son propre bouton (pas par le
-     * bouton portefeuille), on ferme le portefeuille si nécessaire et on repositionne
-     * tous les boutons en une seule passe — sans décalage visuel sur deux frames.
-     */
     @Inject(method = "mouseClicked", at = @At("RETURN"))
     private void afterMouseClicked(double mouseX, double mouseY, int btn,
                                     CallbackInfoReturnable<Boolean> cir) {
         if (!walletHandled) {
-            boolean recipeBookToggled =
-                    recipeBookComponent.isVisible() != cucubanymod_wasRecipeBookVisible;
-            if (recipeBookToggled) {
-                // Le livre de recettes s'est ouvert : fermer le portefeuille
-                if (recipeBookComponent.isVisible() && walletVisible) {
-                    walletVisible = false;
+            boolean toggled = recipeBookComponent.isVisible() != cucubanymod_wasRecipeBookVisible;
+            if (toggled) {
+                if (recipeBookComponent.isVisible() && WalletState.walletOpen) {
+                    WalletState.walletOpen = false;
                 }
                 this.leftPos = cucubanymod_updateScreenPosition();
                 cucubanymod_repositionButtons();
@@ -124,12 +101,13 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         walletHandled = false;
     }
 
-    // ── Rendu du panneau portefeuille ─────────────────────────────────────────
+    // ── Rendu : fond du wallet + fonds des slots (AVANT le rendu des items) ──
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void renderWallet(PoseStack poseStack, int mouseX, int mouseY,
-                               float partialTick, CallbackInfo ci) {
-        if (!walletVisible || widthTooNarrow) return;
+    @Inject(method = "render", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screens/inventory/EffectRenderingInventoryScreen;render(Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V"))
+    private void renderWalletBackground(PoseStack poseStack, int mouseX, int mouseY,
+                                         float partialTick, CallbackInfo ci) {
+        if (!WalletState.walletOpen || widthTooNarrow) return;
 
         int wx = this.leftPos - WALLET_W - 4;
         int wy = this.topPos + (this.imageHeight - WALLET_H) / 2;
@@ -137,16 +115,39 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, WALLET_TEXTURE);
+
+        // Panneau principal
         blit(poseStack, wx, wy, 0, 0, WALLET_W, WALLET_H);
+
+        // Fonds des slots (different UV selon type de slot et présence d'item)
+        if (this.menu.slots.size() > WALLET_FIRST_SLOT + 10) {
+            int[] localYs = {47, 64, 81, 98, 115};
+
+            // Slot 0 : carte d'identité  (UV empty=0,220  filled=54,220)
+            boolean id0 = !this.menu.slots.get(WALLET_FIRST_SLOT).getItem().isEmpty();
+            blit(poseStack, wx + 27, wy + 105, id0 ? 54 : 0, 220, 18, 18);
+
+            // Slots 1-5 : pièces  (UV empty=18,220)
+            for (int i = 0; i < 5; i++) {
+                boolean has = !this.menu.slots.get(WALLET_FIRST_SLOT + 1 + i).getItem().isEmpty();
+                blit(poseStack, wx + 75, wy + localYs[i], has ? 54 : 18, 220, 18, 18);
+            }
+
+            // Slots 6-10 : piles  (UV empty=36,220)
+            for (int i = 0; i < 5; i++) {
+                boolean has = !this.menu.slots.get(WALLET_FIRST_SLOT + 6 + i).getItem().isEmpty();
+                blit(poseStack, wx + 93, wy + localYs[i], has ? 54 : 36, 220, 18, 18);
+            }
+        }
     }
 
-    // ── Clic dans le portefeuille = pas "hors GUI" (évite de jeter des items) ─
+    // ── Clic dans le wallet = pas "hors GUI" ──────────────────────────────────
 
     @Inject(method = "hasClickedOutside", at = @At("RETURN"), cancellable = true)
     private void walletHasClickedOutside(double mouseX, double mouseY,
                                           int guiLeft, int guiTop, int mouseBtn,
                                           CallbackInfoReturnable<Boolean> cir) {
-        if (walletVisible && !widthTooNarrow && Boolean.TRUE.equals(cir.getReturnValue())) {
+        if (WalletState.walletOpen && !widthTooNarrow && Boolean.TRUE.equals(cir.getReturnValue())) {
             int wx = this.leftPos - WALLET_W - 4;
             int wy = this.topPos + (this.imageHeight - WALLET_H) / 2;
             if (mouseX >= wx && mouseY >= wy && mouseX < wx + WALLET_W && mouseY < wy + WALLET_H) {
@@ -157,15 +158,9 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /**
-     * Retourne le leftPos approprié selon quel panneau est ouvert.
-     * Portefeuille ouvert → décale l'inventaire pour centrer wallet(178) + gap(4) + inv(176) = 358px.
-     * Livre de recettes ouvert → délègue à la logique vanilla.
-     * Rien d'ouvert → centrage simple.
-     */
     @Unique
     private int cucubanymod_updateScreenPosition() {
-        if (walletVisible && !widthTooNarrow) {
+        if (WalletState.walletOpen && !widthTooNarrow) {
             return (this.width - this.imageWidth - 182) / 2 + 182;
         } else if (recipeBookComponent.isVisible() && !widthTooNarrow) {
             return recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);

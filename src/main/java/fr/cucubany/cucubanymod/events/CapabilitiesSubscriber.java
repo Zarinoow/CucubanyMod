@@ -11,13 +11,17 @@ import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
 import fr.cucubany.cucubanymod.network.hitbox.SyncBodyHealthPacket;
 import fr.cucubany.cucubanymod.network.hitbox.SyncPartIdsPacket;
 import fr.cucubany.cucubanymod.roleplay.Identity;
+import fr.cucubany.cucubanymod.wallet.IWalletCapability;
+import fr.cucubany.cucubanymod.wallet.WalletCapabilityProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -51,6 +55,7 @@ public class CapabilitiesSubscriber {
             if (!event.getObject().getCapability(BodyHealthProvider.BODY_HEALTH_CAPABILITY).isPresent()) {
                 event.addCapability(new ResourceLocation(CucubanyMod.MOD_ID, "body_health"), new BodyHealthProvider());
             }
+            event.addCapability(new ResourceLocation(CucubanyMod.MOD_ID, "wallet"), new WalletCapabilityProvider());
         }
     }
 
@@ -58,6 +63,7 @@ public class CapabilitiesSubscriber {
     public static void onRegisterCapabilitiesEvent(RegisterCapabilitiesEvent event) {
         event.register(IIdentityCapability.class);
         event.register(IBodyHealth.class);
+        event.register(IWalletCapability.class);
     }
 
     @SubscribeEvent
@@ -99,12 +105,37 @@ public class CapabilitiesSubscriber {
             });
         });
 
+        // 3. GESTION DU PORTEFEUILLE
+        if (!event.isWasDeath()) {
+            oldPlayer.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).ifPresent(oldWallet -> {
+                newPlayer.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).ifPresent(newWallet -> {
+                    newWallet.readNBT(oldWallet.writeNBT());
+                });
+            });
+        }
+
         // On invalide les caps de l'ancien joueur pour éviter des fuites de mémoire
         oldPlayer.invalidateCaps();
 
         if (event.getPlayer() instanceof ServerPlayer serverPlayer) {
             serverPlayer.getCapability(BodyHealthProvider.BODY_HEALTH_CAPABILITY).ifPresent(cap -> {
                 SyncBodyHealthPacket.sendHealthSync(serverPlayer, cap.serializeNBT());
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            player.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).ifPresent(wallet -> {
+                var container = wallet.getContainer();
+                for (int i = 0; i < container.getContainerSize(); i++) {
+                    ItemStack stack = container.getItem(i);
+                    if (!stack.isEmpty()) {
+                        player.drop(stack, true, false);
+                        container.setItem(i, ItemStack.EMPTY);
+                    }
+                }
             });
         }
     }
