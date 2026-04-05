@@ -59,7 +59,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
         walletButton = new ImageButton(
                 this.leftPos + 126, this.height / 2 - 22, 20, 18,
-                74, 222, 18, WALLET_TEXTURE,
+                72, 220, 18, WALLET_TEXTURE,
                 (btn) -> {
                     if (recipeBookComponent.isVisible()) {
                         recipeBookComponent.toggleVisibility();
