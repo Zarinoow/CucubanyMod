@@ -18,9 +18,9 @@ public class SneakPoseHandler implements IPartPoseHandler {
         double bx = Math.sin(rad); // Vecteur Arrière
         double bz = -Math.cos(rad);
 
-        double headY = 1.0;
-        double torsoY = 0.45;
-        double armY = 0.35;
+        double headY = 1.125;
+        double torsoY = 0.50;
+        double armY = 0.50;
         double sneakBack = 0.25;
 
         // Configuration Pieds/Jambes
