@@ -29,14 +29,14 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu {
             int[] ys = {47, 64, 81, 98, 115};
 
             // Slot 0 : carte d'identité
-            addSlot(new WalletSlot(container, 0, -154, 105));
+            addSlot(new WalletSlot(container, 0, -154, 105, player));
             // Slots 1-5 : pièces
             for (int i = 0; i < 5; i++) {
-                addSlot(new WalletSlot(container, 1 + i, -106, ys[i]));
+                addSlot(new WalletSlot(container, 1 + i, -106, ys[i], player));
             }
             // Slots 6-10 : piles de pièces
             for (int i = 0; i < 5; i++) {
-                addSlot(new WalletSlot(container, 6 + i, -88, ys[i]));
+                addSlot(new WalletSlot(container, 6 + i, -88, ys[i], player));
             }
         });
     }
