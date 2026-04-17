@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.wallet.WalletState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -126,6 +128,23 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             // Slot 0 : carte d'identité  (UV empty=0,220  filled=54,220)
             boolean id0 = !this.menu.slots.get(WALLET_FIRST_SLOT).getItem().isEmpty();
             blit(poseStack, wx + 27, wy + 105, id0 ? 54 : 0, 220, 18, 18);
+
+            // Tête du joueur au-dessus du slot carte d'identité
+            if (id0) {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null) {
+                    ResourceLocation skin = mc.player.getSkinTextureLocation();
+                    RenderSystem.setShaderTexture(0, skin);
+                    // Couche de base : visage décalé d'1px vers l'intérieur (30x30)
+                    GuiComponent.blit(poseStack, wx + 21, wy + 61, 30, 30, 8.0f, 8.0f, 8, 8, 64, 64);
+                    // Couche chapeau légèrement plus grande (32x32) pour l'effet 3D
+                    RenderSystem.enableBlend();
+                    GuiComponent.blit(poseStack, wx + 20, wy + 60, 32, 32, 40.0f, 8.0f, 8, 8, 64, 64);
+                    RenderSystem.disableBlend();
+                    // Restaurer la texture du wallet pour la suite
+                    RenderSystem.setShaderTexture(0, WALLET_TEXTURE);
+                }
+            }
 
             // Slots 1-5 : pièces  (UV empty=18,220)
             for (int i = 0; i < 5; i++) {

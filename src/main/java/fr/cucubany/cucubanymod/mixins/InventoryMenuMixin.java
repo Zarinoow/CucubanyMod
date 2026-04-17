@@ -38,7 +38,7 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu {
             int[] ys = {47, 64, 81, 98, 115};
 
             // Slot 0 : carte d'identité
-            addSlot(new WalletSlot(container, 0, -154, 105, player));
+            addSlot(new IdentitySlot(container, 0, -154, 105, player));
 
             // Créer les 5 paires et les apparier
             CoinSlot[] coinSlots = new CoinSlot[5];
