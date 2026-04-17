@@ -116,6 +116,38 @@ public enum CoinValue {
         return result;
     }
 
+    // ── Helpers dénomination ─────────────────────────────────────────────────
+
+    /** Vrai si cette dénomination est une pile (copper_coin_pile, etc.). */
+    public boolean isPile() {
+        return ordinal() % 2 == 1; // piles aux indices impairs selon l'ordre de l'enum
+    }
+
+    /**
+     * Retourne la dénomination appairée : pile ↔ pièce simple.
+     * Ex : COPPER_COIN → COPPER_COIN_PILE, et inversement.
+     */
+    @Nullable
+    public CoinValue getPairedDenomination() {
+        CoinValue[] vals = values();
+        int idx = ordinal();
+        return isPile() ? (idx > 0 ? vals[idx - 1] : null)
+                        : (idx + 1 < vals.length ? vals[idx + 1] : null);
+    }
+
+    /**
+     * Retourne le CoinValue correspondant à l'item donné, ou null si inconnu.
+     */
+    @Nullable
+    public static CoinValue fromItem(net.minecraft.world.item.Item item) {
+        if (item == null) return null;
+        for (CoinValue cv : values()) {
+            Item cvItem = cv.getItem();
+            if (cvItem != null && cvItem == item) return cv;
+        }
+        return null;
+    }
+
     /**
      * Retire toutes les pièces de l'inventaire du joueur et retourne la valeur totale.
      * À appeler côté SERVEUR uniquement.
