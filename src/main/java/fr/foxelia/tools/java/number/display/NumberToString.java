@@ -22,6 +22,9 @@ public class NumberToString {
             return RoundNumber.round(split / 1000000000) + "B";
         } else if (split > 999999) {
             return RoundNumber.round(split / 1000000) + "M";
+        } else if (split > 99999) {
+            // Cucubany edit, no decimal for value >100k
+            return RoundNumber.round(split / 1000).intValue() + "K";
         } else if (split > 999) {
             return RoundNumber.round(split / 1000) + "K";
         } else {
