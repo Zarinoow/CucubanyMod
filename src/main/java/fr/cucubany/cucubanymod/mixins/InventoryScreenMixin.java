@@ -2,8 +2,11 @@ package fr.cucubany.cucubanymod.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.cucubany.cucubanymod.bank.CoinValue;
 import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.wallet.WalletState;
+import fr.foxelia.tools.java.number.display.NumberToString;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ImageButton;
@@ -156,6 +159,35 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             for (int i = 0; i < 5; i++) {
                 boolean has = !this.menu.slots.get(WALLET_FIRST_SLOT + 6 + i).getItem().isEmpty();
                 blit(poseStack, wx + 93, wy + localYs[i], has ? 54 : 36, 220, 18, 18);
+            }
+
+            // Totaux par paire (coin + pile), affichés à droite de chaque ligne
+            int[] totalYs = {53, 70, 87, 104, 121};
+            for (int i = 0; i < 5; i++) {
+                ItemStack coinStack = this.menu.slots.get(WALLET_FIRST_SLOT + 1 + i).getItem();
+                ItemStack pileStack = this.menu.slots.get(WALLET_FIRST_SLOT + 6 + i).getItem();
+                if (coinStack.isEmpty() && pileStack.isEmpty()) continue;
+
+                long total = 0;
+                if (!coinStack.isEmpty()) {
+                    CoinValue cv = CoinValue.fromItem(coinStack.getItem());
+                    if (cv != null) total += (long) coinStack.getCount() * cv.getValue();
+                }
+                if (!pileStack.isEmpty()) {
+                    CoinValue cv = CoinValue.fromItem(pileStack.getItem());
+                    if (cv != null) total += (long) pileStack.getCount() * cv.getValue();
+                }
+
+                String text = NumberToString.splitNumber((int) total);
+                float scale = 0.75f;
+                poseStack.pushPose();
+                poseStack.scale(scale, scale, 1.0f);
+                int textWidth = this.font.width(text);
+                this.font.drawShadow(poseStack, text,
+                        (wx + 133) / scale - textWidth,
+                        (wy + totalYs[i]) / scale,
+                        0xFFFFFFFF);
+                poseStack.popPose();
             }
         }
     }
