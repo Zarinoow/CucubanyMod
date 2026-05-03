@@ -158,7 +158,8 @@ public record BankActionPacket(Action action, int pin, UUID targetUUID, long amo
                     for (CoinValue.CoinStack cs : breakdown) {
                         Item item = cs.coin().getItem();
                         if (item == null) continue;
-                        int remaining = cs.count();
+                        // Priorité wallet, overflow vers l'inventaire principal
+                        int remaining = CoinValue.addCoinsToWallet(sender, cs.coin(), cs.count());
                         while (remaining > 0) {
                             int stackSize = Math.min(remaining, 64);
                             ItemStack stack = new ItemStack(item, stackSize);

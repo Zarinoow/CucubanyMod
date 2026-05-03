@@ -1,8 +1,11 @@
 package fr.cucubany.cucubanymod.bank;
 
+import fr.cucubany.cucubanymod.wallet.WalletCapabilityProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,33 +82,39 @@ public enum CoinValue {
 
     // ── Inventaire ────────────────────────────────────────────────────────────
 
-    /** Valeur totale des pièces dans l'inventaire principal du joueur (NBT ignoré). */
+    /** Valeur totale des pièces dans l'inventaire principal et le wallet du joueur. */
     public static long countInInventory(Player player) {
         long total = 0;
         for (var stack : player.getInventory().items) {
-            if (stack.isEmpty()) continue;
-            for (CoinValue coin : values()) {
-                Item item = coin.getItem();
-                if (item != null && stack.getItem() == item) {
-                    total += (long) stack.getCount() * coin.value;
-                    break;
-                }
+            CoinValue cv = fromItem(stack.getItem());
+            if (cv != null) total += (long) stack.getCount() * cv.value;
+        }
+        var walletOpt = player.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).resolve();
+        if (walletOpt.isPresent()) {
+            var container = walletOpt.get().getContainer();
+            for (int i = 1; i <= 10; i++) {
+                ItemStack stack = container.getItem(i);
+                CoinValue cv = fromItem(stack.getItem());
+                if (cv != null) total += (long) stack.getCount() * cv.value;
             }
         }
         return total;
     }
 
-    /** Liste des pièces présentes dans l'inventaire (dénominations non-nulles uniquement). */
+    /** Liste des pièces dans l'inventaire et le wallet (dénominations non-nulles uniquement). */
     public static List<CoinCount> listInInventory(Player player) {
         long[] counts = new long[values().length];
         for (var stack : player.getInventory().items) {
-            if (stack.isEmpty()) continue;
-            for (CoinValue coin : values()) {
-                Item item = coin.getItem();
-                if (item != null && stack.getItem() == item) {
-                    counts[coin.ordinal()] += stack.getCount();
-                    break;
-                }
+            CoinValue cv = fromItem(stack.getItem());
+            if (cv != null) counts[cv.ordinal()] += stack.getCount();
+        }
+        var walletOpt = player.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).resolve();
+        if (walletOpt.isPresent()) {
+            var container = walletOpt.get().getContainer();
+            for (int i = 1; i <= 10; i++) {
+                ItemStack stack = container.getItem(i);
+                CoinValue cv = fromItem(stack.getItem());
+                if (cv != null) counts[cv.ordinal()] += stack.getCount();
             }
         }
         List<CoinCount> result = new ArrayList<>();
@@ -149,22 +158,133 @@ public enum CoinValue {
     }
 
     /**
-     * Retire toutes les pièces de l'inventaire du joueur et retourne la valeur totale.
+     * Retire toutes les pièces de l'inventaire et du wallet du joueur, retourne la valeur totale.
      * À appeler côté SERVEUR uniquement.
      */
     public static long removeAllCoinsFromInventory(Player player) {
         long total = 0;
         for (var stack : player.getInventory().items) {
             if (stack.isEmpty()) continue;
-            for (CoinValue coin : values()) {
-                Item item = coin.getItem();
-                if (item != null && stack.getItem() == item) {
-                    total += (long) stack.getCount() * coin.value;
-                    stack.setCount(0);
-                    break;
+            CoinValue cv = fromItem(stack.getItem());
+            if (cv != null) {
+                total += (long) stack.getCount() * cv.value;
+                stack.setCount(0);
+            }
+        }
+        var walletOpt = player.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).resolve();
+        if (walletOpt.isPresent()) {
+            var container = walletOpt.get().getContainer();
+            for (int i = 1; i <= 10; i++) {
+                ItemStack stack = container.getItem(i);
+                if (stack.isEmpty()) continue;
+                CoinValue cv = fromItem(stack.getItem());
+                if (cv != null) {
+                    total += (long) stack.getCount() * cv.value;
+                    container.setItem(i, ItemStack.EMPTY);
                 }
             }
         }
         return total;
+    }
+
+    /**
+     * Essaie d'ajouter {@code count} pièces/piles du type {@code coinType} dans le wallet.
+     * Respecte le verrouillage par dénomination des paires CoinSlot/PileSlot.
+     * Retourne le nombre qui n'a pas pu être ajouté (overflow à placer en inventaire).
+     * À appeler côté SERVEUR uniquement.
+     */
+    public static int addCoinsToWallet(Player player, CoinValue coinType, int count) {
+        var walletOpt = player.getCapability(WalletCapabilityProvider.WALLET_CAPABILITY).resolve();
+        if (walletOpt.isEmpty()) return count;
+        var container = walletOpt.get().getContainer();
+
+        Item coinItem = coinType.getItem();
+        if (coinItem == null) return count;
+
+        // Slots 1-5 : CoinSlots ; slots 6-10 : PileSlots
+        boolean isPile  = coinType.isPile();
+        int startSlot   = isPile ? 6 : 1;
+        int endSlot     = isPile ? 11 : 6;
+        int remaining   = count;
+
+        // Passe 1 : compléter les stacks existants du même type
+        for (int i = startSlot; i < endSlot && remaining > 0; i++) {
+            ItemStack existing = container.getItem(i);
+            if (!existing.isEmpty() && existing.getItem() == coinItem) {
+                int adding = Math.min(64 - existing.getCount(), remaining);
+                if (adding > 0) {
+                    container.setItem(i, new ItemStack(coinItem, existing.getCount() + adding));
+                    remaining -= adding;
+                }
+            }
+        }
+
+        // Passe 2 : slots vides en respectant le verrouillage du slot apparié
+        for (int i = startSlot; i < endSlot && remaining > 0; i++) {
+            if (!container.getItem(i).isEmpty()) continue;
+
+            if (isPile) {
+                // PileSlot i (6-10) apparié avec CoinSlot (i-5)
+                ItemStack paired = container.getItem(i - 5);
+                if (!paired.isEmpty()) {
+                    CoinValue pairedCv = fromItem(paired.getItem());
+                    if (pairedCv != null && pairedCv.getPairedDenomination() != coinType) continue;
+                }
+            } else {
+                // CoinSlot i (1-5) apparié avec PileSlot (i+5)
+                ItemStack paired = container.getItem(i + 5);
+                if (!paired.isEmpty()) {
+                    CoinValue pairedCv = fromItem(paired.getItem());
+                    if (pairedCv != null && pairedCv.getPairedDenomination() != coinType) continue;
+                }
+            }
+
+            int adding = Math.min(64, remaining);
+            container.setItem(i, new ItemStack(coinItem, adding));
+            remaining -= adding;
+        }
+
+        autoConvertWalletContainer(container);
+        return remaining;
+    }
+
+    /**
+     * Convertit les pièces en piles dans le container du wallet (même logique que
+     * autoConvertCoins du mixin, mais sur le SimpleContainer brut).
+     * Indices : CoinSlots 1-5, PileSlots 6-10, pairing ci → ci+5.
+     */
+    private static void autoConvertWalletContainer(SimpleContainer container) {
+        for (int ci = 1; ci <= 5; ci++) {
+            ItemStack coinStack = container.getItem(ci);
+            if (coinStack.isEmpty() || coinStack.getCount() < 9) continue;
+
+            CoinValue coinValue = fromItem(coinStack.getItem());
+            if (coinValue == null || coinValue.isPile()) continue;
+
+            CoinValue pileValue = coinValue.getPairedDenomination();
+            if (pileValue == null) continue;
+            Item pileItem = pileValue.getItem();
+            if (pileItem == null) continue;
+
+            int pi = ci + 5;
+            ItemStack pileStack = container.getItem(pi);
+            int currentPileCount = 0;
+            if (!pileStack.isEmpty()) {
+                if (pileStack.getItem() != pileItem) continue; // dénomination différente
+                currentPileCount = pileStack.getCount();
+            }
+
+            int count          = coinStack.getCount();
+            int pilesToCreate  = count / 9;
+            int remainingCoins = count % 9;
+            int pilesConverted = Math.min(pilesToCreate, 64 - currentPileCount);
+            if (pilesConverted == 0) continue;
+
+            int newCoinCount = remainingCoins + (pilesToCreate - pilesConverted) * 9;
+            Item coinItem = coinValue.getItem();
+            container.setItem(ci, newCoinCount == 0 || coinItem == null
+                    ? ItemStack.EMPTY : new ItemStack(coinItem, newCoinCount));
+            container.setItem(pi, new ItemStack(pileItem, currentPileCount + pilesConverted));
+        }
     }
 }
