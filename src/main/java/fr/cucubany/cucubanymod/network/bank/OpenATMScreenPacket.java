@@ -1,7 +1,6 @@
 package fr.cucubany.cucubanymod.network.bank;
 
-import fr.cucubany.cucubanymod.client.screen.ATMScreen;
-import net.minecraft.client.Minecraft;
+import fr.cucubany.cucubanymod.client.network.ClientPacketHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,7 +23,7 @@ public record OpenATMScreenPacket(BlockPos pos) {
     public static void handle(OpenATMScreenPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                Minecraft.getInstance().setScreen(new ATMScreen(packet.pos()))
+                ClientPacketHandlers.openAtmScreen(packet.pos())
             )
         );
         ctx.get().setPacketHandled(true);

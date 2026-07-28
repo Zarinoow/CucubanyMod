@@ -1,13 +1,13 @@
 package fr.cucubany.cucubanymod.network.hitbox;
 
 import fr.cucubany.cucubanymod.CucubanyMod;
-import fr.cucubany.cucubanymod.capabilities.BodyHealthProvider;
+import fr.cucubany.cucubanymod.client.network.ClientPacketHandlers;
 import fr.cucubany.cucubanymod.network.CucubanyPacketHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -34,15 +34,10 @@ public class SyncBodyHealthPacket {
 
     // Réception (Client)
     public static void handle(SyncBodyHealthPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            Player player = Minecraft.getInstance().player;
-
-            if (player != null) {
-                player.getCapability(BodyHealthProvider.BODY_HEALTH_CAPABILITY).ifPresent(cap -> {
-                    cap.deserializeNBT(msg.data);
-                });
-            }
-        });
+        ctx.get().enqueueWork(() ->
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> ClientPacketHandlers.applyBodyHealth(msg.data))
+        );
         CucubanyMod.getLogger().info("[DEBUG] Received SyncBodyHealthPacket with data: " + msg.data);
         ctx.get().setPacketHandled(true);
     }
