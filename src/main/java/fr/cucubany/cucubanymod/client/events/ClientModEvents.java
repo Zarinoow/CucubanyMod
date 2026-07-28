@@ -7,6 +7,7 @@ import fr.cucubany.cucubanymod.CucubanyMod;
 import fr.cucubany.cucubanymod.client.animation.ClientAnimationManager;
 import fr.cucubany.cucubanymod.client.overlay.BankStatementOverlay;
 import fr.cucubany.cucubanymod.client.overlay.BodyHealthOverlay;
+import fr.cucubany.cucubanymod.client.overlay.HitboxDevEditorHud;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.gui.OverlayRegistry;
@@ -37,5 +38,6 @@ public class ClientModEvents {
         );
         OverlayRegistry.registerOverlayTop("Body Health", BodyHealthOverlay.HUD_OVERLAY);
         OverlayRegistry.registerOverlayTop("Bank Statement", BankStatementOverlay.HUD_OVERLAY);
+        OverlayRegistry.registerOverlayTop("Hitbox Dev Editor", HitboxDevEditorHud.HUD_OVERLAY);
     }
 }

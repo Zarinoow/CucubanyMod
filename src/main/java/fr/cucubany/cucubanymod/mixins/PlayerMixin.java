@@ -5,13 +5,18 @@ import fr.cucubany.cucubanymod.hitbox.BodyPartEntity;
 import fr.cucubany.cucubanymod.hitbox.IMultiPartPlayer;
 import fr.cucubany.cucubanymod.hitbox.PartTransform;
 import fr.cucubany.cucubanymod.hitbox.PoseManager;
+import fr.cucubany.cucubanymod.hitbox.data.PoseData;
+import fr.cucubany.cucubanymod.hitbox.dev.HitboxDevEditor;
 import fr.cucubany.cucubanymod.hitbox.poses.IPartPoseHandler;
 import fr.cucubany.cucubanymod.hitbox.poses.StandingPoseHandler;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -78,35 +83,49 @@ public abstract class PlayerMixin extends LivingEntity implements IMultiPartPlay
     @Unique
     private void updatePartPositions() {
         Player player = (Player) (Object) this;
-        IPartPoseHandler handler = PoseManager.getHandler(player);
 
+        // Mode éditeur DEV : utiliser la position fantôme figée (client-side uniquement).
+        // Le test sur FMLEnvironment évite tout chargement de HitboxDevEditor (qui référence
+        // des classes client) sur un serveur dédié.
+        if (FMLEnvironment.dist == Dist.CLIENT && player.level.isClientSide && HitboxDevEditor.isActive()) {
+            Vec3 ghost = HitboxDevEditor.getGhostPos();
+            PoseData editorData = HitboxDevEditor.getEditedPoseData();
+            if (editorData != null) {
+                for (BodyPart partType : BodyPart.values()) {
+                    List<BodyPartEntity> entities = this.bodyPartMap.get(partType);
+                    if (entities == null || entities.isEmpty()) continue;
+                    PartTransform[] targets = editorData.getTransforms(
+                        ghost.x, ghost.y, ghost.z, HitboxDevEditor.getGhostYBodyRot(), partType);
+                    applyTransforms(entities, targets);
+                }
+                return;
+            }
+        }
+
+        IPartPoseHandler handler = PoseManager.getHandler(player);
         for (BodyPart partType : BodyPart.values()) {
             List<BodyPartEntity> entities = this.bodyPartMap.get(partType);
             if (entities == null || entities.isEmpty()) continue;
-
-            // Récupère les positions cibles (ex: 2 transforms pour Torso)
             PartTransform[] targets = handler.getTransforms(player, partType);
+            applyTransforms(entities, targets);
+        }
+    }
 
-            for (int i = 0; i < entities.size(); i++) {
-                if (i >= targets.length) break;
+    @Unique
+    private void applyTransforms(List<BodyPartEntity> entities, PartTransform[] targets) {
+        for (int i = 0; i < entities.size(); i++) {
+            if (i >= targets.length) break;
+            BodyPartEntity entity = entities.get(i);
+            PartTransform target = targets[i];
 
-                BodyPartEntity entity = entities.get(i);
-                PartTransform target = targets[i];
+            entity.resize(target.size().width, target.size().height);
 
-                // 1. Appliquer Taille
-                entity.resize(target.size().width, target.size().height);
+            entity.xo = entity.getX(); entity.yo = entity.getY(); entity.zo = entity.getZ();
+            entity.xOld = entity.getX(); entity.yOld = entity.getY(); entity.zOld = entity.getZ();
+            entity.setPos(target.position().x, target.position().y, target.position().z);
 
-                // 2. Appliquer Position
-                entity.xo = entity.getX(); entity.yo = entity.getY(); entity.zo = entity.getZ();
-                entity.xOld = entity.getX(); entity.yOld = entity.getY(); entity.zOld = entity.getZ();
-                entity.setPos(target.position().x, target.position().y, target.position().z);
-
-                // --- AJOUT CRUCIAL : FORCER LA BOUNDING BOX ---
-                // Comme l'entité a noPhysics=true, setPos ne déplace pas toujours la boîte de collision.
-                // On la force manuellement ici.
-                entity.setBoundingBox(entity.getDimensions(net.minecraft.world.entity.Pose.STANDING)
-                        .makeBoundingBox(target.position().x, target.position().y, target.position().z));
-            }
+            entity.setBoundingBox(entity.getDimensions(net.minecraft.world.entity.Pose.STANDING)
+                .makeBoundingBox(target.position().x, target.position().y, target.position().z));
         }
     }
 }

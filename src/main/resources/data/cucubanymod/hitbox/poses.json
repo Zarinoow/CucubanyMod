@@ -1,0 +1,24 @@
+{
+  "standing": {
+    "head":       [{"lateral": 0.0,    "backward": 0.0,  "y": 1.375,   "width": 0.5,  "height": 0.5  }],
+    "torso":      [{"lateral": 0.125,  "backward": 0.0,  "y": 0.75,    "width": 0.25, "height": 0.65 },
+                   {"lateral": -0.125, "backward": 0.0,  "y": 0.75,    "width": 0.25, "height": 0.65 }],
+    "arm_left":   [{"lateral": 0.375,  "backward": 0.0,  "y": 0.65625, "width": 0.25, "height": 0.75 }],
+    "arm_right":  [{"lateral": -0.375, "backward": 0.0,  "y": 0.65625, "width": 0.25, "height": 0.75 }],
+    "leg_left":   [{"lateral": 0.125,  "backward": 0.0,  "y": 0.15,    "width": 0.25, "height": 0.60 }],
+    "leg_right":  [{"lateral": -0.125, "backward": 0.0,  "y": 0.15,    "width": 0.25, "height": 0.60 }],
+    "foot_left":  [{"lateral": 0.125,  "backward": 0.0,  "y": 0.0,     "width": 0.25, "height": 0.15 }],
+    "foot_right": [{"lateral": -0.125, "backward": 0.0,  "y": 0.0,     "width": 0.25, "height": 0.15 }]
+  },
+  "sneak": {
+    "head":       [{"lateral": 0.0,    "backward": -0.1, "y": 1.125,   "width": 0.5,  "height": 0.5  }],
+    "torso":      [{"lateral": 0.0,    "backward": 0.2,  "y": 0.50,    "width": 0.5,  "height": 0.625},
+                   {"lateral": 0.0,    "backward": 0.2,  "y": 0.50,    "width": 0.5,  "height": 0.625}],
+    "arm_left":   [{"lateral": 0.375,  "backward": 0.1,  "y": 0.50,    "width": 0.25, "height": 0.60 }],
+    "arm_right":  [{"lateral": -0.375, "backward": 0.1,  "y": 0.50,    "width": 0.25, "height": 0.60 }],
+    "leg_left":   [{"lateral": 0.125,  "backward": 0.25, "y": 0.0,     "width": 0.25, "height": 0.50 }],
+    "leg_right":  [{"lateral": -0.125, "backward": 0.25, "y": 0.0,     "width": 0.25, "height": 0.50 }],
+    "foot_left":  [{"lateral": 0.125,  "backward": 0.25, "y": -0.15,   "width": 0.25, "height": 0.15 }],
+    "foot_right": [{"lateral": -0.125, "backward": 0.25, "y": -0.15,   "width": 0.25, "height": 0.15 }]
+  }
+}

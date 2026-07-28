@@ -11,6 +11,7 @@ public class KeyBinding {
 
     public static void register() {
         ClientRegistry.registerKeyBinding(SKILL_SCREEN);
+        ClientRegistry.registerKeyBinding(KEY_HITBOX_DEV);
     }
 
     public static final String KEYBIND_CATEGORY = "key.categories.cucubanymod";
@@ -20,4 +21,6 @@ public class KeyBinding {
      */
 
     public static final KeyMapping SKILL_SCREEN = new KeyMapping("key.cucubanymod.skill_screen", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_I, KEYBIND_CATEGORY);
+
+    public static final KeyMapping KEY_HITBOX_DEV = new KeyMapping("key.cucubanymod.hitbox_dev_editor", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, KEYBIND_CATEGORY);
 }

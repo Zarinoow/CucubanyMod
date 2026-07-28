@@ -102,6 +102,7 @@
 
   "key.categories.cucubanymod": "Cucubany",
   "key.cucubanymod.skill_screen": "Open the skill screen",
+  "key.cucubanymod.hitbox_dev_editor": "Toggle the hitbox dev editor",
 
   "skill.cucubanymod.outdoor_survival.name": "Outdoor Survival",
   "skill.cucubanymod.outdoor_survival.description": "This skill allows you to survive in the\nwild and unlock more escape time",

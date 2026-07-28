@@ -19,40 +19,26 @@ public class EntityRenderDispatcherMixin {
 
     @Inject(method = "renderHitbox", at = @At("HEAD"), cancellable = true)
     private static void onRenderHitbox(PoseStack poseStack, VertexConsumer buffer, Entity entity, float partialTicks, CallbackInfo ci) {
-        // On cible uniquement le joueur
-        if (entity instanceof Player player) {
-            // 1. On annule le rendu de la grosse boîte blanche du joueur
-            ci.cancel();
+        if (!(entity instanceof Player player)) return;
 
-            // 2. Si le joueur possède nos parties (via l'interface), on les dessine NOUS-MÊMES
-            if (player instanceof IMultiPartPlayer multiPartPlayer) {
-                BodyPartEntity[] parts = multiPartPlayer.getBodyParts();
+        // Annule toujours la hitbox blanche par défaut du joueur
+        ci.cancel();
 
-                if (parts != null) {
-                    for (BodyPartEntity part : parts) {
-                        // Récupération de la couleur depuis l'Enum
-                        float r = part.logicalPart.getRed();
-                        float g = part.logicalPart.getGreen();
-                        float b = part.logicalPart.getBlue();
+        // En mode DEV, les hitboxes sont dessinées dans onRenderLevelLast (centralisé,
+        // fonctionne en 1ère et 3ème personne sans duplication)
+        if (fr.cucubany.cucubanymod.hitbox.dev.HitboxDevEditor.isActive()) return;
 
-                        // CALCUL DE POSITION :
-                        // Le 'poseStack' est actuellement centré sur la position interpolée du Joueur.
-                        // La 'part.getBoundingBox()' est en coordonnées absolues dans le monde.
-                        // Il faut donc soustraire la position du joueur pour ramener la boîte dans le référentiel local.
+        if (!(player instanceof IMultiPartPlayer multiPartPlayer)) return;
+        BodyPartEntity[] parts = multiPartPlayer.getBodyParts();
+        if (parts == null) return;
 
-                        // Note : On utilise les coordonnées exactes du joueur (getX) car le PoseStack a déjà appliqué l'interpolation visuelle.
-                        double dx = -player.getX();
-                        double dy = -player.getY();
-                        double dz = -player.getZ();
-
-                        // On déplace la BoundingBox de la partie pour qu'elle soit relative au joueur
-                        AABB localBox = part.getBoundingBox().move(dx, dy, dz);
-
-                        // On dessine la boîte colorée
-                        LevelRenderer.renderLineBox(poseStack, buffer, localBox, r, g, b, 1.0F);
-                    }
-                }
-            }
+        for (BodyPartEntity part : parts) {
+            float r = part.logicalPart.getRed();
+            float g = part.logicalPart.getGreen();
+            float b = part.logicalPart.getBlue();
+            // poseStack est au centre exact du joueur — on ramène la boîte dans ce référentiel
+            AABB localBox = part.getBoundingBox().move(-player.getX(), -player.getY(), -player.getZ());
+            LevelRenderer.renderLineBox(poseStack, buffer, localBox, r, g, b, 1.0F);
         }
     }
 }

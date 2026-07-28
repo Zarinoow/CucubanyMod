@@ -11,13 +11,12 @@ public class PoseManager {
     // Add Swimming/Crawling here later
 
     public static IPartPoseHandler getHandler(Player player) {
-        // Prioritize specific states
-        if (player.isVisuallySwimming()) {
-            return SNEAK; // Use swimming handler later
-        }
-        if (player.isCrouching()) {
-            return SNEAK;
-        }
+        if (player.isVisuallySwimming() || player.isCrouching()) return SNEAK;
         return STANDING;
+    }
+
+    public static String getPoseName(Player player) {
+        if (player.isVisuallySwimming() || player.isCrouching()) return "sneak";
+        return "standing";
     }
 }
